@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/widgets/dr_navigation.dart';
 
-class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+class DrNotificationScreen extends StatefulWidget {
+  const DrNotificationScreen({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  State<DrNotificationScreen> createState() => _DrNotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
+class _DrNotificationScreenState extends State<DrNotificationScreen> {
   bool isButtonActive = true;
 
   @override

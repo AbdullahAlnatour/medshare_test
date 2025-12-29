@@ -56,7 +56,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
               style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
             Text(
-              "Kareem Saleh",
+              "Ahmad Sami",
               style: TextStyle(
                 fontSize: width * 0.065,
                 fontWeight: FontWeight.bold,
@@ -70,7 +70,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
               child: const Icon(Icons.notifications_none_rounded, size: 30),
               onTap: () => Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => const NotificationScreen(),
+                  builder: (context) => const DrNotificationScreen(),
                 ),
               ),
             ),

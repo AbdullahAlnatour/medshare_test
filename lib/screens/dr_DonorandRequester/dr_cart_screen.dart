@@ -8,17 +8,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final List<CartItem> cartItems = [
-    CartItem(
-      name: 'Oxycontin 10mg',
-      quantity: 2,
-      image: Icons.medication,
-    ),
-    CartItem(
-      name: 'Amoxicillin 500mg',
-      quantity: 1,
-      image: Icons.medication_liquid,
-    ),
+  final List<CartItem> equipmentCartItems = [
     CartItem(
       name: 'Medical Gloves',
       quantity: 3,
@@ -26,9 +16,18 @@ class _CartScreenState extends State<CartScreen> {
     ),
   ];
 
+  final List<CartItem> medicineCartItems = [
+    CartItem(name: 'Oxycontin 10mg', quantity: 2, image: Icons.medication),
+    CartItem(
+      name: 'Amoxicillin 500mg',
+      quantity: 1,
+      image: Icons.medication_liquid,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -47,66 +46,58 @@ class _CartScreenState extends State<CartScreen> {
       body: Column(
         children: [
           Expanded(
-            child: cartItems.isEmpty
+            child: (equipmentCartItems.isEmpty && medicineCartItems.isEmpty)
                 ? _buildEmptyCart()
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Cart items
-                        ...cartItems.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final item = entry.value;
-                          return _buildCartItem(item, index);
-                        }),
+                        _buildCartSection(
+                          title: "Equipment Cart",
+                          items: equipmentCartItems,
+                        ),
+                        const SizedBox(height: 18),
+                        _buildCartSection(
+                          title: "Medicine Cart",
+                          items: medicineCartItems,
+                        ),
                       ],
                     ),
                   ),
           ),
+
           // Donate button
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade200,
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
+          SizedBox(
+            height: 56,
+            width: 360,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ],
-            ),
-            child: SafeArea(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle donation
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: const Color(0xFF1F5A6E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Checkout',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                // Handle donation
+              },
+              child: const Text(
+                'Checkout',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
               ),
             ),
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _buildCartItem(CartItem item, int index) {
+  Widget _buildCartItem(CartItem item, int index, List<CartItem> list) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -117,7 +108,6 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Row(
         children: [
-          // Icon
           Container(
             width: 60,
             height: 60,
@@ -125,14 +115,10 @@ class _CartScreenState extends State<CartScreen> {
               color: const Color(0xFF34AFB7).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              item.image,
-              color: const Color(0xFF34AFB7),
-              size: 30,
-            ),
+            child: Icon(item.image, color: const Color(0xFF34AFB7), size: 30),
           ),
           const SizedBox(width: 16),
-          // Item details
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,15 +134,11 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Quantity: ${item.quantity}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
               ],
             ),
           ),
-          // Quantity controls
           Row(
             children: [
               IconButton(
@@ -167,7 +149,7 @@ class _CartScreenState extends State<CartScreen> {
                     if (item.quantity > 1) {
                       item.quantity--;
                     } else {
-                      cartItems.removeAt(index);
+                      list.removeAt(index);
                     }
                   });
                 },
@@ -195,6 +177,32 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  Widget _buildCartSection({
+    required String title,
+    required List<CartItem> items,
+  }) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          return _buildCartItem(item, index, items);
+        }),
+      ],
+    );
+  }
 
   Widget _buildEmptyCart() {
     return Center(
@@ -219,7 +227,6 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
-
 }
 
 class CartItem {
@@ -227,10 +234,5 @@ class CartItem {
   int quantity;
   IconData image;
 
-  CartItem({
-    required this.name,
-    required this.quantity,
-    required this.image,
-  });
+  CartItem({required this.name, required this.quantity, required this.image});
 }
-

@@ -23,12 +23,19 @@ class _DonorRequestScreenState extends State<DonorRequestScreen> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
           child: Column(
             children: [
-              const Center(
-                child: Text(
-                  'Donor',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Center(
+                child: _tab == DonorTab.donor
+                    ? Text(
+                        "Donor",
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      )
+                    : Text(
+                        "Requester",
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
                 ),
-              ),
         
               const SizedBox(height: 25),
         
@@ -38,7 +45,7 @@ class _DonorRequestScreenState extends State<DonorRequestScreen> {
         
               Expanded(
                 child: _tab == DonorTab.donor
-                    ? const DonorItemsList()
+                    ?  DonorItemsList()
                     : RequestItemsList(),
               ),
             ],
@@ -66,3 +73,4 @@ class _DonorRequestScreenState extends State<DonorRequestScreen> {
     );
   }
 }
+

@@ -13,20 +13,21 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
 
   final _adminProfileNameCtrl = TextEditingController();
   final _adminProfileEmailCtrl = TextEditingController();
-  final _adminProfileOldPassCtrl = TextEditingController();
+  /*final _adminProfileOldPassCtrl = TextEditingController();
   final _adminProfileNewPassCtrl = TextEditingController();
-  final _adminProfileConfirmPassCtrl = TextEditingController();
-
-  bool _adminProfileShowPass = false;
+  final _adminProfileConfirmPassCtrl = TextEditingController();*/
+  /* 
+  bool _adminProfileShowOldPass = false;
+  bool _adminProfileShowNewPass = false;
   bool _adminProfileShowConfirm = false;
-
+*/
   @override
   void dispose() {
     _adminProfileNameCtrl.dispose();
     _adminProfileEmailCtrl.dispose();
-    _adminProfileOldPassCtrl.dispose();
+    /*_adminProfileOldPassCtrl.dispose();
     _adminProfileNewPassCtrl.dispose();
-    _adminProfileConfirmPassCtrl.dispose();
+    _adminProfileConfirmPassCtrl.dispose();*/
     super.dispose();
   }
 
@@ -77,16 +78,6 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                           fontFamily: 'Poppins',
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Age 40',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
                       const SizedBox(height: 5),
                       Expanded(
                         child: SingleChildScrollView(
@@ -100,7 +91,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             children: [
                               SizedBox(height: height * 0.006),
                               _profileBuildForm(context),
-                              SizedBox(height: height * 0.02),
+                              SizedBox(height: height * 0.25),
                               _profileBuildActions(context),
                               SizedBox(height: height * 0.03),
                             ],
@@ -220,14 +211,15 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               return null;
             },
           ),
+          /*
           const SizedBox(height: 14),
           CustomTextField(
             label: 'Old Password',
             controller: _adminProfileOldPassCtrl,
             isPassword: true,
-            obscure: _adminProfileShowPass,
+            obscure: _adminProfileShowOldPass,
             onToggleVisibility: () =>
-                setState(() => _adminProfileShowPass = !_adminProfileShowPass),
+                setState(() => _adminProfileShowOldPass = !_adminProfileShowOldPass),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your old password';
@@ -243,9 +235,9 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             label: 'New Password',
             controller: _adminProfileNewPassCtrl,
             isPassword: true,
-            obscure: _adminProfileShowPass,
+            obscure: _adminProfileShowNewPass,
             onToggleVisibility: () =>
-                setState(() => _adminProfileShowPass = !_adminProfileShowPass),
+                setState(() => _adminProfileShowNewPass = !_adminProfileShowNewPass),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your new password';
@@ -273,7 +265,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               }
               return null;
             },
-          ),
+          ),*/
         ],
       ),
     );

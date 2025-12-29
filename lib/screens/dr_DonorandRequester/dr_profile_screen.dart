@@ -13,20 +13,21 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
 
   final _drProfileNameCtrl = TextEditingController();
   final _drProfileEmailCtrl = TextEditingController();
-  final _drProfileOldPassCtrl = TextEditingController();
+  /*final _drProfileOldPassCtrl = TextEditingController();
   final __drProfileNewPassCtrl = TextEditingController();
-  final _drProfileConfirmPassCtrl = TextEditingController();
-
-  bool _drProfileShowPass = false;
+  final _drProfileConfirmPassCtrl = TextEditingController();*/
+  /*
+  bool _drProfileShowOldPass = false;
+  bool _drProfileShowNewPass = false;
   bool _drProfileShowConfirm = false;
-
+*/
   @override
   void dispose() {
     _drProfileNameCtrl.dispose();
     _drProfileEmailCtrl.dispose();
-    _drProfileOldPassCtrl.dispose();
+    /*_drProfileOldPassCtrl.dispose();
     __drProfileNewPassCtrl.dispose();
-    _drProfileConfirmPassCtrl.dispose();
+    _drProfileConfirmPassCtrl.dispose();*/
     super.dispose();
   }
 
@@ -69,20 +70,10 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
                     children: [
                       const SizedBox(height: 20),
                       Text(
-                        'Kareem Saleh',
+                        'Mr. Ahmad Sami',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Age 22',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
                         ),
@@ -100,7 +91,7 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
                             children: [
                               SizedBox(height: height * 0.006),
                               _profileBuildForm(context),
-                              SizedBox(height: height * 0.02),
+                              SizedBox(height: height * 0.25),
                               _profileBuildActions(context),
                               SizedBox(height: height * 0.03),
                             ],
@@ -221,13 +212,14 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
             },
           ),
           const SizedBox(height: 14),
+          /*
           CustomTextField(
             label: 'Old Password',
             controller: _drProfileOldPassCtrl,
             isPassword: true,
-            obscure: _drProfileShowPass,
+            obscure: _drProfileShowOldPass,
             onToggleVisibility: () =>
-                setState(() => _drProfileShowPass = !_drProfileShowPass),
+                setState(() => _drProfileShowOldPass = !_drProfileShowOldPass),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your old password';
@@ -243,9 +235,9 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
             label: 'New Password',
             controller: __drProfileNewPassCtrl,
             isPassword: true,
-            obscure: _drProfileShowPass,
+            obscure: _drProfileShowNewPass,
             onToggleVisibility: () =>
-                setState(() => _drProfileShowPass = !_drProfileShowPass),
+                setState(() => _drProfileShowNewPass = !_drProfileShowNewPass),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your new password';
@@ -273,7 +265,7 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
               }
               return null;
             },
-          ),
+          ),*/
         ],
       ),
     );

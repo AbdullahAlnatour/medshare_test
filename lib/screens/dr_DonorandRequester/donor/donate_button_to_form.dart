@@ -23,7 +23,6 @@ class DonateHintCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // + icon in a circle
           Container(
             width: 40,
             height: 40,
@@ -36,7 +35,6 @@ class DonateHintCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // text
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +63,6 @@ class DonateHintCard extends StatelessWidget {
 
           const SizedBox(width: 12),
 
-          // Donate button (pill)
           InkWell(
             borderRadius: BorderRadius.circular(999),
             onTap: () {

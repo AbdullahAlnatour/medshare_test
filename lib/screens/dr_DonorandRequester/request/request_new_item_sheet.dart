@@ -11,7 +11,6 @@ class _RequestNewItemSheetState extends State<RequestNewItemSheet> {
   final _formKey = GlobalKey<FormState>();
 
   String _type = "Medicine";
-  String _priority = "Normal";
 
   final _nameCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
@@ -21,7 +20,6 @@ class _RequestNewItemSheetState extends State<RequestNewItemSheet> {
 
     final data = {
       "type": _type,
-      "priority": _priority,
       "name": _nameCtrl.text,
       "desc": _descCtrl.text,
     };
@@ -42,7 +40,7 @@ class _RequestNewItemSheetState extends State<RequestNewItemSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: bottom),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+        padding: const EdgeInsets.fromLTRB(20, 25, 20, 50),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -107,40 +105,7 @@ class _RequestNewItemSheetState extends State<RequestNewItemSheet> {
                   ),
                   maxLines: 3,
                 ),
-
-                const SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    const Text("Priority:", style: TextStyle(fontSize: 14)),
-                    const SizedBox(width: 10),
-                    ChoiceChip(
-                      label: const Text("Normal"),
-                      selected: _priority == "Normal",
-                      onSelected: (_) => setState(() => _priority = "Normal"),
-                      selectedColor: kTeal,
-                      labelStyle: TextStyle(
-                        color: _priority == "Normal"
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ChoiceChip(
-                      label: const Text("Urgent"),
-                      selected: _priority == "Urgent",
-                      onSelected: (_) => setState(() => _priority = "Urgent"),
-                      selectedColor: Colors.red,
-                      labelStyle: TextStyle(
-                        color:
-                            _priority == "Urgent" ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-
                 const SizedBox(height: 20),
-
                 Row(
                   children: [
                     Expanded(

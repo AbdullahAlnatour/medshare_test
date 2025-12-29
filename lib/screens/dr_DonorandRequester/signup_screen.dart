@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/widgets/admin_navigation.dart';
 import 'package:test_app/widgets/dr_navigation.dart';
-import '../widgets/custom_text_field.dart';
-import '../widgets/social_button.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../widgets/social_button.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -257,7 +257,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void _signupOnCreatePressed() {
     if (_formkey.currentState!.validate()) {
     _signupToast(context, 'Account created successfully!');
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const AdminNavigationpage()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const DrNavigationpage()));
     }
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/screens/dr_DonorandRequester/dr_notification_screen.dart';
+import 'package:test_app/screens/Admin/admin_notification_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -72,7 +72,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               child: const Icon(Icons.notifications_none_rounded, size: 30),
               onTap: () => Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => const NotificationScreen(),
+                  builder: (context) => const AdminNotificationScreen(),
                 ),
               ),
             ),

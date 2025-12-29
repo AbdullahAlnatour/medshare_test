@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_app/widgets/custom_text_field.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -9,7 +10,10 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final resetEmailController = TextEditingController();
-
+  bool _showOldPass = false;
+  bool _showNewPass = false;
+  final _oldPassCtrl = TextEditingController();
+  final _newPassCtrl = TextEditingController();
   @override
   void dispose() {
     resetEmailController.dispose();
@@ -38,12 +42,40 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(height: 14),
-            TextField(
-              controller: resetEmailController,
-              decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-              ),
+            CustomTextField(
+              label: 'Old Password',
+              controller: _oldPassCtrl,
+              isPassword: true,
+              obscure: _showOldPass,
+              onToggleVisibility: () =>
+                  setState(() => _showOldPass = !_showOldPass),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your old password';
+                }
+                if (value.length < 6) {
+                  return 'Password must be at least 6 characters';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 14),
+            CustomTextField(
+              label: 'New Password',
+              controller: _newPassCtrl,
+              isPassword: true,
+              obscure: _showNewPass,
+              onToggleVisibility: () =>
+                  setState(() => _showNewPass = !_showNewPass),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your new password';
+                }
+                if (value.length < 6) {
+                  return 'Password must be at least 6 characters';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 30),
             ElevatedButton(
@@ -55,7 +87,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
               ),
               onPressed: () {},
-              child: const Text("Continue", style: TextStyle(fontSize: 20)),
+              child: const Text("Reset Password", style: TextStyle(fontSize: 20)),
             ),
           ],
         ),

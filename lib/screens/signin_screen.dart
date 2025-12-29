@@ -214,7 +214,7 @@ class _SignUpScreenState extends State<SignInScreen> {
               ),
               foregroundColor: Colors.white,
             ),
-            onPressed: _signupOnCreatePressed,
+            onPressed: _signinOnCreatePressed,
             child: const Text(
               'Sign in',
               style: TextStyle(
@@ -290,16 +290,16 @@ class _SignUpScreenState extends State<SignInScreen> {
     );
   }
 
-  void _signupOnCreatePressed() {
+  void _signinOnCreatePressed() {
     if (_formkey.currentState!.validate()) {
-      _signupToast(context, 'Sign in successfully!');
+      _signinToast(context, 'Sign in successfully!');
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AdminNavigationpage()),
+        MaterialPageRoute(builder: (context) => const DrNavigationpage()),
       );
     }
   }
 
-  void _signupToast(BuildContext context, String msg) {
+  void _signinToast(BuildContext context, String msg) {
     if (msg == 'Sign in successfully!') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg), backgroundColor: Colors.green),

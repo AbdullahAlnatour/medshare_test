@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/widgets/admin_navigation.dart';
 
-class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+class AdminNotificationScreen extends StatefulWidget {
+  const AdminNotificationScreen({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  State<AdminNotificationScreen> createState() => _AdminNotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
+class _AdminNotificationScreenState extends State<AdminNotificationScreen> {
   bool isButtonActive = true;
 
   @override

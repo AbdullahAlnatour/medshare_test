@@ -9,41 +9,27 @@ class CalendarScreen extends StatefulWidget {
 
 class _CalendarScreenState extends State<CalendarScreen> {
   DateTime selectedDate = DateTime(2024, 12, 13);
-  DateTime currentMonth = DateTime(2024, 12);
-  bool isEditMode = false;
-      final timeController = TextEditingController();
-    final titleController = TextEditingController();
-  @override
-  void dispose() {
-    timeController.dispose();
-    titleController.dispose();
-    super.dispose();
-  }
+
+  // Colors matched to the provided images
+  final Color darkTeal = const Color(0xFF085D62); // Button color
+  final Color lightTealAccent = const Color(
+    0xFF34AFB7,
+  ); // Icon selection border
+
   List<Task> tasks = [
     Task(
+      date: DateTime(2024, 12, 13),
       time: '3:20PM',
       title: 'Oxycontin',
       status: 'Not Match yet',
       icon: Icons.medication,
-      isMatched: false,
-      matchedTo: null,
     ),
     Task(
+      date: DateTime(2024, 12, 13),
       time: '7:45PM',
       title: 'Patient bed',
       status: 'Matched to Dana Ahmad',
       icon: Icons.bed,
-      isMatched: true,
-      matchedTo: 'Dana Ahmad',
-    ),
-    Task(
-      time: '10:00PM',
-      title: 'Amoxicillin',
-      status: 'Matched to Rama Noel',
-      icon: Icons.medication,
-      isMatched: true,
-      matchedTo: 'Rama Noel',
-      isCompleted: true,
     ),
   ];
 
@@ -56,28 +42,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
         elevation: 0,
         title: const Text(
           'Calendar',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: Column(
         children: [
-          // Date Text Field
           _buildDateTextField(),
-          
-          // Divider with text
           _buildDivider(),
-          
-          // Tasks List
-          Expanded(
-            child: _buildTasksList(),
-          ),
-          
-          // Action Button
+          Expanded(child: _buildTasksList()),
           _buildActionButton(),
         ],
       ),
@@ -85,37 +58,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildDateTextField() {
-    final dateText = '${_getDayName(selectedDate.weekday)}, ${_getMonthName(selectedDate.month)} ${selectedDate.day}, ${selectedDate.year}';
-    
-    return Container(
+    final dateText =
+        '${_getDayName(selectedDate.weekday)}, ${_getMonthName(selectedDate.month)} ${selectedDate.day}, ${selectedDate.year}';
+
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: TextField(
         readOnly: true,
         controller: TextEditingController(text: dateText),
         decoration: InputDecoration(
           labelText: 'Select Date',
-          hintText: 'Tap to select date',
-          prefixIcon: const Icon(Icons.calendar_today, color: Color(0xFF34AFB7)),
-          suffixIcon: const Icon(Icons.arrow_drop_down, color: Color(0xFF34AFB7)),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF34AFB7), width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black87,
+          prefixIcon: Icon(Icons.calendar_today, color: lightTealAccent),
+          suffixIcon: Icon(Icons.arrow_drop_down, color: lightTealAccent),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
         onTap: () async {
           final DateTime? picked = await showDatePicker(
@@ -126,189 +81,118 @@ class _CalendarScreenState extends State<CalendarScreen> {
             builder: (context, child) {
               return Theme(
                 data: Theme.of(context).copyWith(
-                  colorScheme: const ColorScheme.light(
-                    primary: Color(0xFF34AFB7),
+                  colorScheme: ColorScheme.light(
+                    primary: lightTealAccent,
                     onPrimary: Colors.white,
-                    onSurface: Colors.black87,
+                    onSurface: Colors.black,
                   ),
                 ),
                 child: child!,
               );
             },
           );
-          if (picked != null && picked != selectedDate) {
-            setState(() {
-              selectedDate = picked;
-              currentMonth = DateTime(picked.year, picked.month);
-            });
-          }
+          if (picked != null) setState(() => selectedDate = picked);
         },
       ),
     );
   }
 
-  String _getDayName(int weekday) {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return days[weekday % 7];
-  }
-
-  Widget _buildDivider() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Divider(
-          color: Colors.grey.shade300,
-          thickness: 1,
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          color: Colors.white,
-          child: Text(
-            "There's three plans-",
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildTasksList() {
+    final filteredTasks = tasks
+        .where(
+          (t) =>
+              t.date.year == selectedDate.year &&
+              t.date.month == selectedDate.month &&
+              t.date.day == selectedDate.day,
+        )
+        .toList();
+
+    if (filteredTasks.isEmpty) {
+      return const Center(child: Text("No tasks for this day."));
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: tasks.length,
-      itemBuilder: (context, index) {
-        return _buildTaskCard(tasks[index], index);
-      },
+      itemCount: filteredTasks.length,
+      itemBuilder: (context, index) => _buildTaskCard(filteredTasks[index]),
     );
   }
 
-  Widget _buildTaskCard(Task task, int index) {
+  Widget _buildTaskCard(Task task) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Time
           SizedBox(
             width: 70,
             child: Text(
               task.time,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
-          // Task Card
           Expanded(
             child: Container(
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: task.isCompleted 
-                    ? const Color(0xFF34AFB7).withValues(alpha: 0.2)
-                    : const Color(0xFF34AFB7).withValues(alpha: 0.15),
+                color: darkTeal.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  // Icon and Content
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                // Toggle between original icon and done icon
-                                tasks[index].isDone = !tasks[index].isDone;
-                              });
-                            },
-                            child: Icon(
-                              tasks[index].isDone ? Icons.check_circle : tasks[index].icon,
-                              color: tasks[index].isDone 
-                                  ? Color(0xFF34AFB7) 
-                                  : Color(0xFF34AFB7),
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  task.title,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  task.status,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                  GestureDetector(
+                    onTap: () => setState(() => task.isDone = !task.isDone),
+                    child: Icon(
+                      task.isDone ? Icons.check_circle : task.icon,
+                      color: task.isDone ? Colors.green : lightTealAccent,
                     ),
                   ),
-                  // Completed checkmark or Edit icon
-                  if (task.isCompleted)
-                    Container(
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF34AFB7).withValues(alpha: 0.3),
-                        borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          task.title,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    )
-                  else
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: IconButton(
-                        icon: Icon(
-                          isEditMode ? Icons.save : Icons.edit,
-                          size: 20,
-                        ),
-                        color: isEditMode ? const Color(0xFF34AFB7) : Colors.grey.shade700,
-                        onPressed: () {
-                          setState(() {
-                            if (isEditMode) {
-                              // Exit edit mode - icon changes to edit
-                              isEditMode = false;
-                            } else {
-                              // Enter edit mode - icon changes to save
-                              isEditMode = true;
-                            }
-                          });
-                          // If exiting edit mode, show dialog after state update
-                          if (!isEditMode) {
-                            Future.delayed(const Duration(milliseconds: 100), () {
-                              _showTaskAssignedDialog();
-                            });
-                          }
-                        },
-                      ),
+                        task.isEditing
+                            ? TextField(
+                                style: const TextStyle(fontSize: 12),
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  hintText: "Edit status...",
+                                ),
+                                onChanged: (val) => task.status = val,
+                              )
+                            : Text(
+                                task.status,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                      ],
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      task.isEditing ? Icons.save : Icons.edit,
+                      size: 20,
+                      color: darkTeal,
+                    ),
+                    onPressed: () {
+                      setState(() => task.isEditing = !task.isEditing);
+                      if (!task.isEditing) _showSuccessDialog("Changes Saved!");
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.redAccent,
+                      size: 20,
+                    ),
+                    onPressed: () => setState(() => tasks.remove(task)),
+                  ),
                 ],
               ),
             ),
@@ -322,35 +206,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: SizedBox(
+        height: 56,
         width: double.infinity,
-        height: 50,
         child: ElevatedButton(
-          onPressed: () {
-            if (isEditMode) {
-              setState(() {
-                isEditMode = false;
-              });
-              // Small delay to ensure UI updates before showing dialog
-              Future.delayed(const Duration(milliseconds: 100), () {
-                _showTaskAssignedDialog();
-              });
-            } else {
-              // Show add task dialog
-              _showAddTaskDialog();
-            }
-          },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF34AFB7),
+            backgroundColor: darkTeal,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            
           ),
-          child: Text(
-            isEditMode ? 'Save changes' : 'Add Task',
-            style: const TextStyle(
+          onPressed: _showAddTaskDialog,
+          child: const Text(
+            'Add Task',
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -359,336 +229,261 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // --- Styled Dialogs ---
 
   void _showAddTaskDialog() {
-
+    final titleController = TextEditingController();
+    final timeController = TextEditingController();
+    IconData selectedIcon = Icons.medication;
+    String? titleError;
+    String? timeError;
 
     showDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (context) {
-        IconData selectedIcon = Icons.medication;
-        return StatefulBuilder(
-          builder: (dialogContext, setDialogState) => Dialog(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Add New Task',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Time picker
-                  TextField(
-                    controller: timeController,
-                    decoration: InputDecoration(
-                      labelText: 'Time',
-                      hintText: 'e.g., 3:20PM',
-                      prefixIcon: const Icon(Icons.access_time, color: Color(0xFF34AFB7)),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF1DB9A3), width: 2),
-                      ),
-                    ),
-                    onTap: () async {
-                      final TimeOfDay? picked = await showTimePicker(
-                        context: dialogContext,
-                        initialTime: TimeOfDay.now(),
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: const ColorScheme.light(
-                                primary: Color(0xFF34AFB7),
-                              ),
-                            ),
-                            child: child!,
-                          );
-                        },
-                      );
-                      if (picked != null) {
-                        final hour = picked.hour > 12 ? picked.hour - 12 : (picked.hour == 0 ? 12 : picked.hour);
-                        final minute = picked.minute.toString().padLeft(2, '0');
-                        final period = picked.hour >= 12 ? 'PM' : 'AM';
-                        final selectedTime = '$hour:$minute$period';
-                        timeController.text = selectedTime;
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  // Title input
-                  TextField(
-                    controller: titleController,
-                    decoration: InputDecoration(
-                      labelText: 'Task Title',
-                      hintText: 'e.g., Oxycontin, Patient bed',
-                      prefixIcon: const Icon(Icons.task, color: Color(0xFF34AFB7)),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF34AFB7), width: 2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Icon selector
-                  const Text(
-                    'Select Icon',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildIconOption(Icons.medication, selectedIcon, setDialogState, () {
-                        setDialogState(() {
-                          selectedIcon = Icons.medication;
-                        });
-                      }),
-                      _buildIconOption(Icons.bed, selectedIcon, setDialogState, () {
-                        setDialogState(() {
-                          selectedIcon = Icons.bed;
-                        });
-                      }),
-                      _buildIconOption(Icons.local_hospital, selectedIcon, setDialogState, () {
-                        setDialogState(() {
-                          selectedIcon = Icons.local_hospital;
-                        });
-                      }),
-                      _buildIconOption(Icons.medical_services, selectedIcon, setDialogState, () {
-                        setDialogState(() {
-                          selectedIcon = Icons.medical_services;
-                        });
-                      }),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  // Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(dialogContext);
-                            
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (timeController.text.isNotEmpty && titleController.text.isNotEmpty) {
-                              setState(() {
-                                tasks.add(Task(
-                                  time: timeController.text,
-                                  title: titleController.text,
-                                  status: 'Not Match yet',
-                                  icon: selectedIcon,
-                                  isMatched: false,
-                                  matchedTo: null,
-                                ));
-                              });
-                              Navigator.pop(dialogContext);
-                              
-                              _showTaskAssignedDialog();
-                              timeController.clear();
-                              titleController.clear();
-                              
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF34AFB7),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Add Task',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: const Center(
+            child: Text(
+              "Add New Task",
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: timeController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'Time',
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  prefixIcon: const Icon(Icons.access_time, color: Colors.grey),
+                  errorText: timeError,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onTap: () async {
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.light(
+                            primary: lightTealAccent, // لون الساعة + الأزرار
+                            onPrimary: Colors.white, // لون النص داخل الدائرة
+                            onSurface: Colors.black, // لون النص العام
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+
+                  if (picked != null) {
+                    setDialogState(() {
+                      timeController.text = picked.format(context);
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  labelText: 'Task Title',
+                  labelStyle: const TextStyle(color: Colors.grey),
+                  errorText: titleError,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children:
+                    [
+                      Icons.medication,
+                      Icons.bed,
+                      Icons.local_hospital,
+                      Icons.medical_services,
+                    ].map((icon) {
+                      final isSelected = selectedIcon == icon;
+                      return GestureDetector(
+                        onTap: () => setDialogState(() => selectedIcon = icon),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? lightTealAccent.withOpacity(0.1)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? lightTealAccent
+                                  : Colors.grey.shade300,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Icon(
+                            icon,
+                            color: isSelected ? lightTealAccent : Colors.grey,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+              ),
+            ],
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 8.0,
+              ),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: darkTeal,
+                  minimumSize: const Size(double.infinity, 54),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () {
+                  setDialogState(() {
+                    titleError = titleController.text.isEmpty
+                        ? "Please fill the field"
+                        : null;
+                    timeError = timeController.text.isEmpty
+                        ? "Please fill the field"
+                        : null;
+                  });
+                  if (titleError == null && timeError == null) {
+                    setState(() {
+                      tasks.add(
+                        Task(
+                          date: selectedDate,
+                          time: timeController.text,
+                          title: titleController.text,
+                          status: "Not Match yet",
+                          icon: selectedIcon,
+                        ),
+                      );
+                    });
+                    Navigator.pop(context);
+                    _showSuccessDialog("Task Assigned!");
+                  }
+                },
+                child: const Text(
+                  "Add",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        
+      ),
+    );
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (Navigator.canPop(context)) Navigator.of(context).pop();
+        });
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 20),
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF5DB063),
+                size: 120,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                message,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         );
       },
     );
   }
 
-  Widget _buildIconOption(IconData icon, IconData selectedIcon, StateSetter setDialogState, VoidCallback onSelect) {
-    final isSelected = icon == selectedIcon;
-    return GestureDetector(
-      onTap: onSelect,
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF34AFB7).withValues(alpha: 0.2) : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF34AFB7) : Colors.grey.shade300,
-            width: isSelected ? 2 : 1,
+  Widget _buildDivider() {
+    final count = tasks.where((t) => t.date.day == selectedDate.day).length;
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Divider(color: Colors.grey.shade300, thickness: 1),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          color: Colors.white,
+          child: Text(
+            "There are $count plans",
+            style: TextStyle(color: Colors.grey.shade600),
           ),
         ),
-        child: Icon(
-          icon,
-          color: isSelected ? const Color(0xFF34AFB7) : Colors.grey.shade600,
-          size: 24,
-        ),
-      ),
+      ],
     );
   }
 
-  void _showTaskAssignedDialog() {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: Container(
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 60,
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Task Assigned!',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF34AFB7),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _getMonthName(int month) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return months[month - 1];
-  }
-
+  String _getDayName(int weekday) =>
+      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][weekday % 7];
+  String _getMonthName(int month) => [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ][month - 1];
 }
 
 class Task {
+  final DateTime date;
   final String time;
   final String title;
-  final String status;
-  IconData icon;
-  final bool isMatched;
-  final String? matchedTo;
-  final bool isCompleted;
+  String status;
+  final IconData icon;
   bool isDone;
+  bool isEditing;
 
   Task({
+    required this.date,
     required this.time,
     required this.title,
     required this.status,
     required this.icon,
-    required this.isMatched,
-    this.matchedTo,
-    this.isCompleted = false,
     this.isDone = false,
+    this.isEditing = false,
   });
-  
 }
-

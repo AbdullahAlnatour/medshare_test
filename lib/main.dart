@@ -5,7 +5,7 @@ import 'package:test_app/screens/dr_DonorandRequester/donor/donor_request_screen
 import 'package:test_app/screens/onboarding1.dart';
 import 'package:test_app/screens/onboarding2.dart';
 import 'package:test_app/screens/reset_password.dart';
-import 'package:test_app/screens/signup_screen.dart';
+import 'package:test_app/screens/dr_DonorandRequester/signup_screen.dart';
 import 'package:test_app/screens/signin_screen.dart';
 import 'package:test_app/widgets/admin_navigation.dart';
 import 'package:test_app/widgets/dr_navigation.dart';
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const Onboarding1(),
+      home: const AdminNavigationpage(),
        routes: {
         '/onboarding1': (context) => const Onboarding1(),
         '/onboarding2': (context) => const Onboarding2(),

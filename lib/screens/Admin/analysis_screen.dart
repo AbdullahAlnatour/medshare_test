@@ -10,6 +10,7 @@ class AnalysisScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xfff5f6fa),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("Analysis",),
         backgroundColor: kTeal,
         foregroundColor: Colors.white,
@@ -36,36 +37,6 @@ class AnalysisScreen extends StatelessWidget {
     );
   }
 
-  // ---------------------------
-  // TOP HEADER CARD
-  // ---------------------------
-  /*Widget _buildSummaryHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: kTeal,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: const [
-          Text(
-            "Total Donations",
-            style: TextStyle(color: Colors.white70, fontSize: 16),
-          ),
-          SizedBox(height: 6),
-          Text(
-            "584 Donations",
-            style: TextStyle(
-                color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-*/
-  // ---------------------------
-  // SECTION TITLE
-  // ---------------------------
   Widget _buildTitle(String title) {
     return Align(
       alignment: Alignment.center,
@@ -119,15 +90,12 @@ class AnalysisScreen extends StatelessWidget {
     );
   }
 
-  // ---------------------------
-  // CATEGORY STATS
-  // ---------------------------
   Widget _buildStatsGrid() {
     final stats = [
-      {"title": "Medicines", "percent": "35.34%", "color": Color(0xff3e4a89)},
-      {"title": "Equipment", "percent": "24.12%", "color": kTeal},
-      {"title": "Donors", "percent": "13.49%", "color": Color(0xff65d6ce)},
-      {"title": "Requests", "percent": "18.21%", "color": Color(0xffa2b1ff)},
+      {"title": "Users", "percent": "35.34%", "color": Color(0xff3e4a89)},
+      {"title": "Donations", "percent": "24.12%", "color": kTeal},
+      {"title": "Requests", "percent": "13.49%", "color": Color(0xff65d6ce)},
+      {"title": "User Requests", "percent": "18.21%", "color": Color(0xffa2b1ff)},
     ];
 
     return GridView.count(

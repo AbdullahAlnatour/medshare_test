@@ -29,6 +29,7 @@ class _DonateNewItemSheetState extends State<DonateNewItemSheet> {
   // Equipment fields
   final _deviceCtrl = TextEditingController();
   final _accessoriesCtrl = TextEditingController();
+  final _quantityCtrl = TextEditingController();
   String? _condition;
   bool _functional = false;
 
@@ -98,7 +99,7 @@ class _DonateNewItemSheetState extends State<DonateNewItemSheet> {
     return Padding(
         padding: EdgeInsets.only(bottom: bottom),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 25),
+          padding: const EdgeInsets.fromLTRB(20, 25, 20, 40),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -336,7 +337,24 @@ class _DonateNewItemSheetState extends State<DonateNewItemSheet> {
           validator: (v) => v == null ? "Required" : null,
         ),
         const SizedBox(height: 12),
-
+        TextFormField(
+          controller: _accessoriesCtrl,
+          maxLines: 1,
+          decoration: const InputDecoration(
+            labelText: "Accessories (Optional)",
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _quantityCtrl,
+          maxLines: 1,
+          decoration: const InputDecoration(
+            labelText: "Quantity",
+            border: OutlineInputBorder(),
+          ),
+          validator: (v) => v!.isEmpty ? "Required" : null,
+        ),
         CheckboxListTile(
           title: const Text("Fully Functional"),
           value: _functional,
@@ -344,15 +362,6 @@ class _DonateNewItemSheetState extends State<DonateNewItemSheet> {
           controlAffinity: ListTileControlAffinity.leading,
         ),
         const SizedBox(height: 12),
-
-        TextFormField(
-          controller: _accessoriesCtrl,
-          maxLines: 2,
-          decoration: const InputDecoration(
-            labelText: "Accessories (Optional)",
-            border: OutlineInputBorder(),
-          ),
-        ),
       ],
     );
   }
