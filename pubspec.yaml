@@ -68,9 +68,9 @@ flutter:
     - assets/images/wheelchair.png
     - assets/images/patientbed.jpg
     - assets/images/crutches.jpg
-    - assets/images/medical_bg.jpg
-    - assets/images/medical_bg1.jpg
     - assets/images/User_profile.jpg
+    - assets/images/onboarding1.png
+    - assets/images/onboarding2.png
     
 
     

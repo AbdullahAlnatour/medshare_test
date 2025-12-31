@@ -10,6 +10,41 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   bool isDonationActive = true;
+  final List<MedicineItem> medicinesdonations = [
+    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
+    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
+    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+  ];
+    final List<MedicineItem> medicinesrequests = [
+    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
+    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
+    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+  ];
+
+  final List<MedicalItem> medicaldonations = [
+    MedicalItem(
+      medicalname: 'Wheel chair',
+      image: 'assets/images/wheelchair.png',
+    ),
+    MedicalItem(
+      medicalname: 'Patient bed',
+      image: 'assets/images/patientbed.jpg',
+    ),
+    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
+  ];
+    final List<MedicalItem> medicalrequests = [
+    MedicalItem(
+      medicalname: 'Wheel chair',
+      image: 'assets/images/wheelchair.png',
+    ),
+    MedicalItem(
+      medicalname: 'Patient bed',
+      image: 'assets/images/patientbed.jpg',
+    ),
+    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
+  ];
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -36,9 +71,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               SizedBox(height: height * 0.015),
               _buildMedicalEquipment(width, height),
               SizedBox(height: height * 0.03),
-              _buildSectionTitle("Medicines"),
+              _buildSectionTitle("Medicines donations"),
               SizedBox(height: height * 0.015),
-              _buildMedicinesList(width, height),
+              _buildmedicinesList(width, height),
             ],
           ),
         ),
@@ -187,19 +222,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildMedicalEquipment(double width, double height) {
-    final items = [
-      {'name': 'Wheel chair', 'image': 'assets/images/wheelchair.png'},
-      {'name': 'Patient bed', 'image': 'assets/images/patientbed.jpg'},
-      {'name': 'Crutches', 'image': 'assets/images/crutches.jpg'},
-    ];
-
     return SizedBox(
       height: height * 0.23,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: items.length,
+        itemCount: (isDonationActive)? medicaldonations.length:medicalrequests.length,
         itemBuilder: (context, index) {
-          final item = items[index];
           return Container(
             width: width * 0.45,
             margin: EdgeInsets.only(right: width * 0.02),
@@ -220,7 +248,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
-                    item['image']!,
+                    (isDonationActive)?medicaldonations[index].image: medicalrequests[index].image,
                     height: height * 0.15,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -231,15 +259,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   children: [
                     const SizedBox(width: 6),
                     Text(
-                      item['name']!,
+                      (isDonationActive)?medicaldonations[index].medicalname: medicalrequests[index].medicalname,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 24),
                     Row(
                       children: [
                         Container(
-                          width: 32,
-                          height: 32,
+                          width: 36,
+                          height: 34,
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -251,17 +279,21 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.close_rounded,
+                          child: IconButton(
+                            icon: Icon(Icons.close_rounded),
                             color: Colors.red,
-                            size: 20,
+                            iconSize: 20,
+                            onPressed: () {
+                              (isDonationActive)? medicaldonations.removeAt(index): medicalrequests.removeAt(index);
+                              setState(() {});
+                            },
                           ),
                         ),
                         const SizedBox(width: 6),
 
                         Container(
-                          width: 32,
-                          height: 32,
+                          width: 36,
+                          height: 34,
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -273,10 +305,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.check_circle,
+                          child: IconButton(
+                            icon: Icon(Icons.check_circle),
                             color: Colors.green,
-                            size: 20,
+                            iconSize: 20,
+                            onPressed: () {
+                              (isDonationActive)?medicaldonations.removeAt(index): medicalrequests.removeAt(index);
+                              setState(() {});
+                            },
                           ),
                         ),
                       ],
@@ -291,20 +327,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  Widget _buildMedicinesList(double width, double height) {
-    final medicines = [
-      {'name': 'Oxycodone', 'expiry': '26/04'},
-      {'name': 'Amoxicillin', 'expiry': '26/06'},
-      {'name': 'Oxycodone', 'expiry': '26/08'},
-      {'name': 'Amoxicillin', 'expiry': '26/06'},
-    ];
-
+  Widget _buildmedicinesList(double width, double height) {
     return Expanded(
       child: ListView.builder(
-        itemCount: medicines.length,
+        itemCount: (isDonationActive)?medicinesdonations.length: medicinesrequests.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
-          final med = medicines[index];
           return Container(
             margin: EdgeInsets.only(bottom: height * 0.015),
             padding: EdgeInsets.all(width * 0.04),
@@ -323,7 +351,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          med['name']!,
+                          (isDonationActive)?medicinesdonations[index].medicinename: medicinesrequests[index].medicinename,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -331,7 +359,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ),
                         ),
                         Text(
-                          "Expired ${med['expiry']!}",
+                          (isDonationActive)?
+                          "Expired ${medicinesdonations[index].expiry}": "Expired ${medicinesrequests[index].expiry}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -344,8 +373,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 Row(
                   children: [
                     Container(
-                      width: 32,
-                      height: 32,
+                      width: 36,
+                      height: 34,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
@@ -357,17 +386,21 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.close_rounded,
+                      child: IconButton(
+                        icon: Icon(Icons.close_rounded),
                         color: Colors.red,
-                        size: 20,
+                        iconSize: 20,
+                        onPressed: () {
+                          (isDonationActive)?medicinesdonations.removeAt(index): medicinesrequests.removeAt(index);
+                          setState(() {});
+                        },
                       ),
                     ),
                     const SizedBox(width: 8),
 
                     Container(
-                      width: 32,
-                      height: 32,
+                      width: 36,
+                      height: 34,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
@@ -379,10 +412,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.check_circle,
+                      child: IconButton(
+                        icon: Icon(Icons.check_circle),
                         color: Colors.green,
-                        size: 20,
+                        iconSize: 20,
+                        onPressed: () {
+                          (isDonationActive)?medicinesdonations.removeAt(index): medicinesrequests.removeAt(index);
+                          setState(() {});
+                        },
                       ),
                     ),
                   ],
@@ -394,4 +431,28 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
     );
   }
+}
+
+class MedicineItem {
+  final String medicinename;
+  final String expiry;
+  bool medicineadded;
+
+  MedicineItem({
+    required this.medicinename,
+    required this.expiry,
+    this.medicineadded = false,
+  });
+}
+
+class MedicalItem {
+  final String medicalname;
+  final String image;
+  bool medicaladded;
+
+  MedicalItem({
+    required this.medicalname,
+    required this.image,
+    this.medicaladded = false,
+  });
 }

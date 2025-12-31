@@ -10,6 +10,25 @@ class DrHomeScreen extends StatefulWidget {
 
 class _DrHomeScreenState extends State<DrHomeScreen> {
   bool isDonationActive = true;
+  final List<MedicineItem> medicines = [
+    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
+    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
+    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+  ];
+
+  final List<MedicalItem> medicalitems = [
+    MedicalItem(
+      medicalname: 'Wheel chair',
+      image: 'assets/images/wheelchair.png',
+    ),
+    MedicalItem(
+      medicalname: 'Patient bed',
+      image: 'assets/images/patientbed.jpg',
+    ),
+    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -136,28 +155,6 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
     );
   }
 
-  Widget _buildActionButton(String text, bool isActive, VoidCallback? onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF34AFB7) : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: const Color(0xFF34AFB7), width: 1.5),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isActive ? Colors.white : const Color(0xFF34AFB7),
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -166,19 +163,12 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   Widget _buildMedicalEquipment(double width, double height) {
-    final items = [
-      {'name': 'Wheel chair', 'image': 'assets/images/wheelchair.png'},
-      {'name': 'Patient bed', 'image': 'assets/images/patientbed.jpg'},
-      {'name': 'Crutches', 'image': 'assets/images/crutches.jpg'},
-    ];
-
     return SizedBox(
       height: height * 0.23,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: items.length,
+        itemCount: medicalitems.length,
         itemBuilder: (context, index) {
-          final item = items[index];
           return Container(
             width: width * 0.45,
             margin: EdgeInsets.only(right: width * 0.02),
@@ -199,7 +189,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
-                    item['image']!,
+                    medicalitems[index].image,
                     height: height * 0.15,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -210,15 +200,15 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                   children: [
                     const SizedBox(width: 6),
                     Text(
-                      item['name']!,
+                      medicalitems[index].medicalname,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 55),
                     Row(
                       children: [
                         Container(
-                          width: 32,
-                          height: 32,
+                          width: 36,
+                          height: 34,
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -230,10 +220,14 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.add_circle_outlined,
+                          child: IconButton(
+                            icon: Icon(Icons.add_circle_outlined),
                             color: Color(0xFF34AFB7),
-                            size: 26,
+                            iconSize: 20,
+                            onPressed: () {
+                              medicalitems.removeAt(index);
+                              setState(() {});
+                            },
                           ),
                         ),
                       ],
@@ -249,19 +243,11 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   Widget _buildMedicinesList(double width, double height) {
-    final medicines = [
-      {'name': 'Oxycodone', 'expiry': '26/04'},
-      {'name': 'Amoxicillin', 'expiry': '26/06'},
-      {'name': 'Oxycodone', 'expiry': '26/08'},
-      {'name': 'Amoxicillin', 'expiry': '26/06'},
-    ];
-
     return Expanded(
       child: ListView.builder(
         itemCount: medicines.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
-          final med = medicines[index];
           return Container(
             margin: EdgeInsets.only(bottom: height * 0.015),
             padding: EdgeInsets.all(width * 0.04),
@@ -280,7 +266,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          med['name']!,
+                          medicines[index].medicinename,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -288,7 +274,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                           ),
                         ),
                         Text(
-                          "Expired ${med['expiry']!}",
+                          "Expired ${medicines[index].expiry}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -302,8 +288,8 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                 Row(
                   children: [
                     Container(
-                      width: 32,
-                      height: 32,
+                      width: 36,
+                      height: 34,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
@@ -315,10 +301,14 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.add_circle_outlined,
+                      child: IconButton(
+                        icon: Icon(Icons.add_circle_outlined),
                         color: Color(0xFF34AFB7),
-                        size: 26,
+                        iconSize: 20,
+                        onPressed: () {
+                          medicines.removeAt(index);
+                          setState(() {});
+                        },
                       ),
                     ),
                   ],
@@ -330,4 +320,28 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
       ),
     );
   }
+}
+
+class MedicineItem {
+  final String medicinename;
+  final String expiry;
+  bool medicineadded;
+
+  MedicineItem({
+    required this.medicinename,
+    required this.expiry,
+    this.medicineadded = false,
+  });
+}
+
+class MedicalItem {
+  final String medicalname;
+  final String image;
+  bool medicaladded;
+
+  MedicalItem({
+    required this.medicalname,
+    required this.image,
+    this.medicaladded = false,
+  });
 }

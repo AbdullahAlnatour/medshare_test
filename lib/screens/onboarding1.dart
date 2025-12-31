@@ -10,7 +10,7 @@ class Onboarding1 extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/medical_bg1.jpg'),
+            image: AssetImage('assets/images/onboarding1.png'),
             fit: BoxFit.cover,
           ),
         ),

@@ -51,7 +51,6 @@ class MyApp extends StatelessWidget {
         '/cart': (context) => const CartScreen(),
         '/signup':(contex) => const SignUpScreen(),
       },
- 
       
     );
   }
