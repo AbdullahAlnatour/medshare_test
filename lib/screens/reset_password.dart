@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/widgets/custom_text_field.dart';
 
+import '../features/auth/data/resetpassowrd/reset_password_service.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
 
@@ -9,6 +11,7 @@ class ResetPasswordScreen extends StatefulWidget {
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  final _formkey = GlobalKey<FormState>();
   final resetEmailController = TextEditingController();
   bool _showOldPass = false;
   bool _showNewPass = false;
@@ -86,7 +89,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {},
+              onPressed: () {
+                _onResetPasswordPressed();
+              },
               child: const Text("Reset Password", style: TextStyle(fontSize: 20)),
             ),
           ],
@@ -94,4 +99,37 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       ),
     );
   }
+  Future<void> _onResetPasswordPressed() async {
+    if (!_formkey.currentState!.validate()) return;
+
+    try {
+      await ResetPasswordService().resetPassword(
+        oldPassword: _oldPassCtrl.text.trim(),
+        newPassword: _newPassCtrl.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      _showToast(context, 'Password updated successfully!');
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      _showToast(
+        context,
+        'Incorrect old password',
+      );
+    }
+  }
+  void _showToast(BuildContext context, String msg) {
+    if (msg == 'Password updated successfully!') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.green),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
+    }
+  }
+
 }

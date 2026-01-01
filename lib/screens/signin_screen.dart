@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:test_app/features/auth/data/login/login_service.dart';
 import 'package:test_app/widgets/admin_navigation.dart';
 import 'package:test_app/widgets/dr_navigation.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/social_button.dart';
-import '../features/auth/data/auth_service.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -278,7 +278,7 @@ class _SignUpScreenState extends State<SignInScreen> {
               child: Text(
                 "Sign up",
                 style: TextStyle(
-                  color: Colors.grey.shade800,
+                  color: Colors.blue.shade800,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   decoration: TextDecoration.underline,
@@ -295,7 +295,7 @@ class _SignUpScreenState extends State<SignInScreen> {
     if (!_formkey.currentState!.validate()) return;
 
     try {
-      final result = await AuthService().login(
+      final result = await LoginService().login(
         email: _signinEmailCtrl.text.trim(),
         password: _signinPassCtrl.text.trim(),
       );
@@ -304,7 +304,6 @@ class _SignUpScreenState extends State<SignInScreen> {
 
       _signinToast(context, 'Sign in successfully!');
 
-      // ✅ بعد نجاح 200، نفحص role
       if (result.role == 1) {
         Navigator.pushReplacement(
           context,
@@ -318,7 +317,7 @@ class _SignUpScreenState extends State<SignInScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      _signinToast(context, e.toString().replaceFirst('Exception: ', ''));
+      _signinToast(context, 'Invalid email or password');
     }
   }
 

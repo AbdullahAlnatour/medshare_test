@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/screens/dr_DonorandRequester/dr_notification_screen.dart';
 
+import '../../core/storage/user_storage.dart';
+
 class DrHomeScreen extends StatefulWidget {
   const DrHomeScreen({super.key});
 
@@ -10,12 +12,20 @@ class DrHomeScreen extends StatefulWidget {
 
 class _DrHomeScreenState extends State<DrHomeScreen> {
   bool isDonationActive = true;
+  String _fullName = '';
+
   final List<MedicineItem> medicines = [
     MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
     MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
     MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
     MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
 
   final List<MedicalItem> medicalitems = [
     MedicalItem(
@@ -75,7 +85,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
               style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
             Text(
-              "Ahmad Sami",
+              _fullName.isEmpty ? '...' : _fullName,
               style: TextStyle(
                 fontSize: width * 0.065,
                 fontWeight: FontWeight.bold,
@@ -319,6 +329,13 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
         },
       ),
     );
+  }
+  Future<void> _loadUser() async {
+    final name = await UserStorage.getFullName();
+    if (!mounted) return;
+    setState(() {
+      _fullName = name ?? '';
+    });
   }
 }
 

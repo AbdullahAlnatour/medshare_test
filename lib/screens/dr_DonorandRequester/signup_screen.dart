@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/widgets/admin_navigation.dart';
-import 'package:test_app/widgets/dr_navigation.dart';
+import 'package:test_app/features/auth/data/register/register_service.dart';
+import 'package:test_app/screens/signin_screen.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/social_button.dart';
 
@@ -12,12 +12,12 @@ class SignUpScreen extends StatefulWidget {
   
 }
 class _SignUpScreenState extends State<SignUpScreen> {
-  final _formkey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   final _signupNameCtrl = TextEditingController();
   final _signupEmailCtrl = TextEditingController();
   final _signupPassCtrl = TextEditingController();
-  final _signupConfirmCtrl = TextEditingController();
+  final _signupConfirmPassCtrl = TextEditingController();
 
   bool _signupShowPass = false;
   bool _signupShowConfirm = false;
@@ -27,7 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _signupNameCtrl.dispose();
     _signupEmailCtrl.dispose();
     _signupPassCtrl.dispose();
-    _signupConfirmCtrl.dispose();
+    _signupConfirmPassCtrl.dispose();
     super.dispose();
   }
 
@@ -131,7 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Widget _signupBuildForm(BuildContext context) {
     return Form(
-      key: _formkey,
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -157,8 +157,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
               }
-              if (!value.endsWith('@gmail.com')) {
-                return 'Email must end with @gmail.com';
+              if (!value.contains('@g')) {
+                return 'Email must end with @';
               }
               return null;
             },
@@ -186,7 +186,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           CustomTextField(
             label: 'Confirm Password',
             hint: "Enter your confirm password",
-            controller: _signupConfirmCtrl,
+            controller: _signupConfirmPassCtrl,
             isPassword: true,
             obscure: _signupShowConfirm,
             onToggleVisibility: () => setState(() => _signupShowConfirm = !_signupShowConfirm),
@@ -254,12 +254,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void _signupOnCreatePressed() {
-    if (_formkey.currentState!.validate()) {
-    _signupToast(context, 'Account created successfully!');
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const DrNavigationpage()));
+  Future<void> _signupOnCreatePressed() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final result = await RegisterService().register(
+        fullName: _signupNameCtrl.text.trim(),
+        email: _signupEmailCtrl.text.trim(),
+        password: _signupPassCtrl.text.trim(),
+        confirmedPassword: _signupConfirmPassCtrl.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      _signupToast(context, 'Account created successfully!');
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const SignInScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _signupToast(context, e.toString().replaceFirst('Exception: ', ''));
     }
   }
+
 
   void _signupToast(BuildContext context, String msg) {
     if(msg== 'Account created successfully!'){
