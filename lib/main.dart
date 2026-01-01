@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const AdminNavigationpage(),
+      home: const Onboarding1(),
        routes: {
         '/onboarding1': (context) => const Onboarding1(),
         '/onboarding2': (context) => const Onboarding2(),
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         '/resetpassword': (context) => const ResetPasswordScreen(),
         '/calendar': (context) => const CalendarScreen(),
         '/cart': (context) => const CartScreen(),
-        '/signup':(contex) => const SignUpScreen(),
+        '/signup':(context) => const SignUpScreen(),
       },
       
     );

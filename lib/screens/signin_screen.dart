@@ -3,6 +3,7 @@ import 'package:test_app/widgets/admin_navigation.dart';
 import 'package:test_app/widgets/dr_navigation.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/social_button.dart';
+import '../features/auth/data/auth_service.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -14,15 +15,15 @@ class SignInScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignInScreen> {
   final _formkey = GlobalKey<FormState>();
 
-  final _signupEmailCtrl = TextEditingController();
-  final _signupPassCtrl = TextEditingController();
+  final _signinEmailCtrl = TextEditingController();
+  final _signinPassCtrl = TextEditingController();
 
   bool _signupShowPass = false;
 
   @override
   void dispose() {
-    _signupEmailCtrl.dispose();
-    _signupPassCtrl.dispose();
+    _signinEmailCtrl.dispose();
+    _signinPassCtrl.dispose();
     super.dispose();
   }
 
@@ -138,14 +139,14 @@ class _SignUpScreenState extends State<SignInScreen> {
           CustomTextField(
             label: 'Email',
             hint: 'Enter your email',
-            controller: _signupEmailCtrl,
+            controller: _signinEmailCtrl,
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
               }
-              if (!value.endsWith('@gmail.com')) {
-                return 'Email must end with @gmail.com';
+              if (!value.contains('@')) {
+                return 'Email must end with @';
               }
               return null;
             },
@@ -154,7 +155,7 @@ class _SignUpScreenState extends State<SignInScreen> {
           CustomTextField(
             label: 'Password',
             hint: "Enter your password",
-            controller: _signupPassCtrl,
+            controller: _signinPassCtrl,
             isPassword: true,
             obscure: _signupShowPass,
             onToggleVisibility: () =>
@@ -290,14 +291,37 @@ class _SignUpScreenState extends State<SignInScreen> {
     );
   }
 
-  void _signinOnCreatePressed() {
-    if (_formkey.currentState!.validate()) {
-      _signinToast(context, 'Sign in successfully!');
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const DrNavigationpage()),
+  Future<void> _signinOnCreatePressed() async {
+    if (!_formkey.currentState!.validate()) return;
+
+    try {
+      final result = await AuthService().login(
+        email: _signinEmailCtrl.text.trim(),
+        password: _signinPassCtrl.text.trim(),
       );
+
+      if (!mounted) return;
+
+      _signinToast(context, 'Sign in successfully!');
+
+      // ✅ بعد نجاح 200، نفحص role
+      if (result.role == 1) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminNavigationpage()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const DrNavigationpage()),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _signinToast(context, e.toString().replaceFirst('Exception: ', ''));
     }
   }
+
 
   void _signinToast(BuildContext context, String msg) {
     if (msg == 'Sign in successfully!') {

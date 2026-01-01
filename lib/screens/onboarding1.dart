@@ -5,6 +5,7 @@ class Onboarding1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).primaryColor;
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
@@ -17,14 +18,14 @@ class Onboarding1 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(),
+            const SizedBox(height: 655),
             const Text(
               "Welcome to your MedShare app",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Color(0xFF085D62),
                 shadows: [
                   Shadow(color: Colors.black54, offset: Offset(2, 2), blurRadius: 4),
                 ],
@@ -42,7 +43,7 @@ class Onboarding1 extends StatelessWidget {
                     },
                     child: const Text(
                       "Skip",
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: TextStyle(fontSize: 20, color: Color(0xFF085D62)),
                     ),
                   ),
                   FloatingActionButton(

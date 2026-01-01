@@ -17,14 +17,14 @@ class Onboarding2 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(),
+            const SizedBox(height: 635),
             const Text(
-              "The best place to find your medicine and medical equipment",
+              "Your trusted source for medicine & medical equipment",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Color(0xFF085D62),
                 shadows: [
                   Shadow(
                     color: Colors.black54,
@@ -34,9 +34,9 @@ class Onboarding2 extends StatelessWidget {
                 ],
               ),
             ),
-            const Spacer(),
+            const SizedBox(),
             Padding(
-              padding: const EdgeInsets.only(bottom: 40),
+              padding: const EdgeInsets.only(top: 40),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -46,7 +46,7 @@ class Onboarding2 extends StatelessWidget {
                     },
                     child: const Text(
                       "Back",
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: TextStyle(fontSize: 20, color: Color(0xFF085D62)),
                     ),
                   ),
                   ElevatedButton(
