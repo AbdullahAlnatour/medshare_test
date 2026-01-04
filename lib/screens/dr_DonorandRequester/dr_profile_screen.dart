@@ -185,7 +185,7 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
         children: [
           CustomTextField(
             label: 'Full Name',
-            hint: 'Enter your full name',
+            hint: 'Ahmad Sami',
             controller: _drProfileNameCtrl,
             keyboardType: TextInputType.name,
             validator: (value) {
@@ -198,7 +198,7 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
           const SizedBox(height: 14),
           CustomTextField(
             label: 'Email',
-            hint: 'Enter your email',
+            hint: 'ahmad@gmail.com',
             controller: _drProfileEmailCtrl,
             keyboardType: TextInputType.emailAddress,
             validator: (value) {

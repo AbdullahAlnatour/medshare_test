@@ -3,7 +3,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:test_app/screens/Admin/admin_profile_screen.dart';
 import 'package:test_app/screens/Admin/analysis_screen.dart';
 import 'package:test_app/screens/Admin/calendar_screen.dart';
-import 'package:test_app/screens/Admin/admin_donation_home_screen.dart';
+import 'package:test_app/screens/Admin/admin_home_screen.dart';
 
 class AdminNavigationpage extends StatefulWidget {
   const AdminNavigationpage({super.key});

@@ -144,8 +144,8 @@ class _SignUpScreenState extends State<SignInScreen> {
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
               }
-              if (!value.endsWith('@gmail.com')) {
-                return 'Email must end with @gmail.com';
+              if (!value.contains('@')) {
+                return 'Email must contain @';
               }
               return null;
             },

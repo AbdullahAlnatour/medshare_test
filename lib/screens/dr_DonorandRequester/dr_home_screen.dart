@@ -14,7 +14,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
     MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
     MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
     MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/07'),
   ];
 
   final List<MedicalItem> medicalitems = [

@@ -11,39 +11,97 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   bool isDonationActive = true;
   final List<MedicineItem> medicinesdonations = [
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+    MedicineItem(
+      medicinename: 'Oxycodone',
+      expiry: '26/04',
+      username: "Laith Abdullah",
+      email: "laith@gmail.com",
+    ),
+    MedicineItem(
+      medicinename: 'Amoxicillin',
+      expiry: '26/06',
+      username: "Zaid Ali",
+      email: "zaid@gmail.com",
+    ),
+    MedicineItem(
+      medicinename: 'Oxycodone',
+      expiry: '26/08',
+      username: "Sara Mohammed",
+      email: "sara@gmail.com",
+    ),
+    MedicineItem(
+      medicinename: 'Amoxicillin',
+      expiry: '26/06',
+      username: "Musa Karam",
+      email: "musa@gmail.com",
+    ),
   ];
-    final List<MedicineItem> medicinesrequests = [
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
+  final List<MedicineItem> medicinesrequests = [
+    MedicineItem(
+      medicinename: 'Oxycodone',
+      expiry: '26/04',
+      username: "Maria Moath",
+      email: "maria@gmail.com",
+    ),
+    MedicineItem(
+      medicinename: 'Amoxicillin',
+      expiry: '26/06',
+      username: "Mohammed Khaled",
+      email: "mohammed@gmail.com",
+    ),
+    MedicineItem(
+      medicinename: 'Oxycodone',
+      expiry: '26/08',
+      username: "Jamel Abdullah",
+      email: "jamel@gmail.com",
+    ),
+    MedicineItem(
+      medicinename: 'Amoxicillin',
+      expiry: '26/06',
+      username: "Tina Khaled",
+      email: "tina@gmail.com",
+    ),
   ];
 
   final List<MedicalItem> medicaldonations = [
     MedicalItem(
       medicalname: 'Wheel chair',
       image: 'assets/images/wheelchair.png',
+      username: "Tina Abdullah",
+      email: "tina@gmail.com",
     ),
     MedicalItem(
       medicalname: 'Patient bed',
       image: 'assets/images/patientbed.jpg',
+      username: "Rama Abdullah",
+      email: "Rama@gmail.com",
     ),
-    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
+    MedicalItem(
+      medicalname: 'Crutches',
+      image: 'assets/images/crutches.jpg',
+      username: "Kareem Omar",
+      email: "kareem@gmail.com",
+    ),
   ];
-    final List<MedicalItem> medicalrequests = [
+  final List<MedicalItem> medicalrequests = [
     MedicalItem(
       medicalname: 'Wheel chair',
       image: 'assets/images/wheelchair.png',
+      username: "Ali Sami",
+      email: "Ali@gmail.com",
     ),
     MedicalItem(
       medicalname: 'Patient bed',
       image: 'assets/images/patientbed.jpg',
+      username: "Ahmad Ali",
+      email: "Ahmad@gmail.com",
     ),
-    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
+    MedicalItem(
+      medicalname: 'Crutches',
+      image: 'assets/images/crutches.jpg',
+      username: "Ahmad Ali",
+      email: "Ahmad01@gmail.com",
+    ),
   ];
   @override
   Widget build(BuildContext context) {
@@ -226,10 +284,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       height: height * 0.23,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: (isDonationActive)? medicaldonations.length:medicalrequests.length,
+        itemCount: (isDonationActive)
+            ? medicaldonations.length
+            : medicalrequests.length,
         itemBuilder: (context, index) {
           return Container(
-            width: width * 0.45,
+            width: width * 0.55,
             margin: EdgeInsets.only(right: width * 0.02),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -248,7 +308,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
-                    (isDonationActive)?medicaldonations[index].image: medicalrequests[index].image,
+                    (isDonationActive)
+                        ? medicaldonations[index].image
+                        : medicalrequests[index].image,
                     height: height * 0.15,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -258,11 +320,43 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 Row(
                   children: [
                     const SizedBox(width: 6),
-                    Text(
-                      (isDonationActive)?medicaldonations[index].medicalname: medicalrequests[index].medicalname,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          (isDonationActive)
+                              ? medicaldonations[index].medicalname
+                              : medicalrequests[index].medicalname,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          (isDonationActive)
+                              ? medicaldonations[index].username
+                              : medicalrequests[index].username,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                        ),
+                        Text(
+                          (isDonationActive)
+                              ? medicaldonations[index].email
+                              : medicalrequests[index].email,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                      ],
                     ),
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 10),
                     Row(
                       children: [
                         Container(
@@ -284,7 +378,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             color: Colors.red,
                             iconSize: 20,
                             onPressed: () {
-                              (isDonationActive)? medicaldonations.removeAt(index): medicalrequests.removeAt(index);
+                              (isDonationActive)
+                                  ? medicaldonations.removeAt(index)
+                                  : medicalrequests.removeAt(index);
                               setState(() {});
                             },
                           ),
@@ -310,7 +406,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             color: Colors.green,
                             iconSize: 20,
                             onPressed: () {
-                              (isDonationActive)?medicaldonations.removeAt(index): medicalrequests.removeAt(index);
+                              (isDonationActive)
+                                  ? medicaldonations.removeAt(index)
+                                  : medicalrequests.removeAt(index);
                               setState(() {});
                             },
                           ),
@@ -330,7 +428,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget _buildmedicinesList(double width, double height) {
     return Expanded(
       child: ListView.builder(
-        itemCount: (isDonationActive)?medicinesdonations.length: medicinesrequests.length,
+        itemCount: (isDonationActive)
+            ? medicinesdonations.length
+            : medicinesrequests.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
           return Container(
@@ -351,7 +451,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          (isDonationActive)?medicinesdonations[index].medicinename: medicinesrequests[index].medicinename,
+                          (isDonationActive)
+                              ? medicinesdonations[index].medicinename
+                              : medicinesrequests[index].medicinename,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -359,11 +461,34 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ),
                         ),
                         Text(
-                          (isDonationActive)?
-                          "Expired ${medicinesdonations[index].expiry}": "Expired ${medicinesrequests[index].expiry}",
+                          (isDonationActive)
+                              ? "Expired ${medicinesdonations[index].expiry}"
+                              : "Expired ${medicinesrequests[index].expiry}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+
+                        Text(
+                          (isDonationActive)
+                              ? medicinesdonations[index].username
+                              : medicinesrequests[index].username,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          (isDonationActive)
+                              ? medicinesdonations[index].email
+                              : medicinesrequests[index].email,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -391,7 +516,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         color: Colors.red,
                         iconSize: 20,
                         onPressed: () {
-                          (isDonationActive)?medicinesdonations.removeAt(index): medicinesrequests.removeAt(index);
+                          (isDonationActive)
+                              ? medicinesdonations.removeAt(index)
+                              : medicinesrequests.removeAt(index);
                           setState(() {});
                         },
                       ),
@@ -417,7 +544,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         color: Colors.green,
                         iconSize: 20,
                         onPressed: () {
-                          (isDonationActive)?medicinesdonations.removeAt(index): medicinesrequests.removeAt(index);
+                          (isDonationActive)
+                              ? medicinesdonations.removeAt(index)
+                              : medicinesrequests.removeAt(index);
                           setState(() {});
                         },
                       ),
@@ -436,11 +565,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 class MedicineItem {
   final String medicinename;
   final String expiry;
+  final String username;
+  final String email;
   bool medicineadded;
 
   MedicineItem({
     required this.medicinename,
     required this.expiry,
+    required this.username,
+    required this.email,
     this.medicineadded = false,
   });
 }
@@ -448,11 +581,15 @@ class MedicineItem {
 class MedicalItem {
   final String medicalname;
   final String image;
+  final String username;
+  final String email;
   bool medicaladded;
 
   MedicalItem({
     required this.medicalname,
     required this.image,
+    required this.username,
+    required this.email,
     this.medicaladded = false,
   });
 }

@@ -42,6 +42,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const AdminNavigationpage(),
+      //AdminNavigationpage()
+      //DrNavigationpage()
        routes: {
         '/onboarding1': (context) => const Onboarding1(),
         '/onboarding2': (context) => const Onboarding2(),
