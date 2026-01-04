@@ -68,17 +68,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                 builder: (context, constraints) {
                   return Column(
                     children: [
-                      const SizedBox(height: 20),
-                      Text(
-                        'Dr Kareem Saleh',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 10),
                       Expanded(
                         child: SingleChildScrollView(
                           padding: EdgeInsets.fromLTRB(
@@ -185,7 +175,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         children: [
           CustomTextField(
             label: 'Full Name',
-            hint: 'Enter your full name',
+            hint: 'Kareem Saleh',
             controller: _adminProfileNameCtrl,
             keyboardType: TextInputType.name,
             validator: (value) {
@@ -198,7 +188,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           const SizedBox(height: 14),
           CustomTextField(
             label: 'Email',
-            hint: 'Enter your email',
+            hint: 'kareem@gmail.com',
             controller: _adminProfileEmailCtrl,
             keyboardType: TextInputType.emailAddress,
             validator: (value) {

@@ -68,16 +68,7 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
                 builder: (context, constraints) {
                   return Column(
                     children: [
-                      const SizedBox(height: 20),
-                      Text(
-                        'Mr. Ahmad Sami',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
+                      const SizedBox(height: 10),
                       const SizedBox(height: 5),
                       Expanded(
                         child: SingleChildScrollView(

@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const AdminNavigationpage(),
+      home: const DrNavigationpage(),
       //AdminNavigationpage()
       //DrNavigationpage()
        routes: {
