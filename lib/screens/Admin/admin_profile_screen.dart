@@ -199,6 +199,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         children: [
           SizedBox(height: 5,),
           CustomTextField(
+            readOnly: false,
             label: 'Full Name',
             hint: 'Enter your full name',
             controller: _adminProfileNameCtrl,
@@ -212,6 +213,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           ),
           const SizedBox(height: 14),
           CustomTextField(
+            readOnly: true,
             label: 'Email',
             hint: 'Enter your email',
             controller: _adminProfileEmailCtrl,

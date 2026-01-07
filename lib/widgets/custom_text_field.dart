@@ -9,6 +9,7 @@ class CustomTextField extends StatelessWidget {
   final VoidCallback? onToggleVisibility;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
+  final bool readOnly;
 
   const CustomTextField({
     super.key,
@@ -20,6 +21,7 @@ class CustomTextField extends StatelessWidget {
     this.onToggleVisibility,
     this.keyboardType = TextInputType.text,
     this.validator,
+    required this.readOnly,
   });
 
   @override
@@ -34,6 +36,7 @@ class CustomTextField extends StatelessWidget {
             )),
         const SizedBox(height: 6),
         TextFormField(
+          readOnly: readOnly,
           controller: controller,
           keyboardType: keyboardType,
           obscureText: isPassword ? !obscure : false,

@@ -136,6 +136,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           CustomTextField(
+            readOnly: false,
             label: 'Full Name',
             hint: 'Enter your full name',
             controller: _signupNameCtrl,
@@ -149,6 +150,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           const SizedBox(height: 14),
           CustomTextField(
+            readOnly: false,
             label: 'Email',
             hint: 'Enter your email',
             controller: _signupEmailCtrl,
@@ -165,6 +167,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           const SizedBox(height: 14),
           CustomTextField(
+            readOnly: false,
             label: 'Password',
             hint: "Enter your password",
             controller: _signupPassCtrl,
@@ -184,6 +187,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           const SizedBox(height: 14),
           CustomTextField(
+            readOnly: false,
             label: 'Confirm Password',
             hint: "Enter your confirm password",
             controller: _signupConfirmPassCtrl,

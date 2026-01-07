@@ -198,6 +198,7 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
         children: [
           SizedBox(height: 5,),
           CustomTextField(
+            readOnly: false,
             label: 'Full Name',
             hint: 'Enter your full name',
             controller: _drProfileNameCtrl,
@@ -211,6 +212,7 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
           ),
           const SizedBox(height: 14),
           CustomTextField(
+            readOnly: false,
             label: 'Email',
             hint: 'Enter your email',
             controller: _drProfileEmailCtrl,

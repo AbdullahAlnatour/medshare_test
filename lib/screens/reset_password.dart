@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/widgets/custom_text_field.dart';
-
 import '../features/auth/data/resetpassowrd/reset_password_service.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -48,6 +47,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             children: [
               SizedBox(height: 14),
               CustomTextField(
+                readOnly: false,
                 label: 'Old Password',
                 controller: _oldPassCtrl,
                 isPassword: true,
@@ -66,6 +66,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               ),
               const SizedBox(height: 14),
               CustomTextField(
+                readOnly:false,
                 label: 'New Password',
                 controller: _newPassCtrl,
                 isPassword: true,

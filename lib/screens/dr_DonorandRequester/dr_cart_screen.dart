@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../features/auth/data/Cart/add_to_cart_dto.dart';
+import '../../features/auth/data/Cart/cart_response_model.dart';
+import '../../features/auth/data/Cart/cart_service.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -8,26 +11,25 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final List<CartItem> equipmentCartItems = [
-    CartItem(
-      name: 'Medical Gloves',
-      quantity: 3,
-      image: Icons.medical_services,
-    ),
-  ];
+  final CartService _cartService = CartService();
+  late Future<CartResponseModel> _cartFuture;
 
-  final List<CartItem> medicineCartItems = [
-    CartItem(name: 'Oxycontin 10mg', quantity: 2, image: Icons.medication),
-    CartItem(
-      name: 'Amoxicillin 500mg',
-      quantity: 1,
-      image: Icons.medication_liquid,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _cartFuture = _cartService.getMyCart();
+  }
+
+  void _reloadCart() {
+    setState(() {
+      _cartFuture = _cartService.getMyCart();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).primaryColor;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -46,31 +48,65 @@ class _CartScreenState extends State<CartScreen> {
       body: Column(
         children: [
           Expanded(
-            child: (equipmentCartItems.isEmpty && medicineCartItems.isEmpty)
-                ? _buildEmptyCart()
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 20,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildCartSection(
-                          title: "Equipment Cart",
-                          items: equipmentCartItems,
-                        ),
-                        const SizedBox(height: 18),
-                        _buildCartSection(
-                          title: "Medicine Cart",
-                          items: medicineCartItems,
-                        ),
-                      ],
-                    ),
+            child: FutureBuilder<CartResponseModel>(
+              future: _cartFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text(snapshot.error.toString()));
+                }
+                final equipmentCartItems = snapshot.data!.equipment
+                    .map((e) => CartItem(
+                  name: e.itemName,
+                  quantity: e.quantity,
+                  image: Icons.medical_services,
+                  donationId: e.donationId,
+                  cartType: 1,
+                ))
+                    .toList();
+
+                final medicineCartItems = snapshot.data!.medicine
+                    .map((e) => CartItem(
+                  name: e.itemName,
+                  quantity: e.quantity,
+                  image: Icons.medication,
+                  donationId: e.donationId,
+                  cartType: 2,
+                ))
+                    .toList();
+
+
+                if (equipmentCartItems.isEmpty &&
+                    medicineCartItems.isEmpty) {
+                  return _buildEmptyCart();
+                }
+
+                return SingleChildScrollView(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildCartSection(
+                        title: "Equipment Cart",
+                        items: equipmentCartItems,
+                      ),
+                      const SizedBox(height: 18),
+                      _buildCartSection(
+                        title: "Medicine Cart",
+                        items: medicineCartItems,
+                      ),
+                    ],
                   ),
+                );
+              },
+            ),
           ),
 
-          // Donate button
+          // Checkout Button
           SizedBox(
             height: 56,
             width: 360,
@@ -82,8 +118,9 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 foregroundColor: Colors.white,
               ),
-              onPressed: () {
-                // Handle donation
+              onPressed: () async {
+                await _cartService.checkout();
+                _reloadCart();
               },
               child: const Text(
                 'Checkout',
@@ -134,7 +171,8 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Quantity: ${item.quantity}',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                  style:
+                  TextStyle(fontSize: 14, color: Colors.grey.shade700),
                 ),
               ],
             ),
@@ -144,14 +182,15 @@ class _CartScreenState extends State<CartScreen> {
               IconButton(
                 icon: const Icon(Icons.remove_circle_outline),
                 color: const Color(0xFF34AFB7),
-                onPressed: () {
-                  setState(() {
-                    if (item.quantity > 1) {
-                      item.quantity--;
-                    } else {
-                      list.removeAt(index);
-                    }
-                  });
+                onPressed: () async {
+                  await _cartService.removeFromCart(
+                    AddToCartDto(
+                      donationId: item.donationId,
+                      quantity: 1,
+                      cartType: item.cartType,
+                    ),
+                  );
+                  _reloadCart();
                 },
               ),
               Text(
@@ -164,10 +203,15 @@ class _CartScreenState extends State<CartScreen> {
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
                 color: const Color(0xFF34AFB7),
-                onPressed: () {
-                  setState(() {
-                    item.quantity++;
-                  });
+                onPressed: () async {
+                  await _cartService.addToCart(
+                    AddToCartDto(
+                      donationId: item.donationId,
+                      quantity: 1,
+                      cartType: item.cartType,
+                    ),
+                  );
+                  _reloadCart();
                 },
               ),
             ],
@@ -233,6 +277,14 @@ class CartItem {
   String name;
   int quantity;
   IconData image;
+  int donationId;
+  int cartType;
 
-  CartItem({required this.name, required this.quantity, required this.image});
+  CartItem({
+    required this.name,
+    required this.quantity,
+    required this.image,
+    required this.donationId,
+    required this.cartType,
+  });
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/screens/Admin/admin_notification_screen.dart';
-
 import '../../core/storage/user_storage.dart';
+import '../../features/auth/data/adminhome/admin_donation_request_model.dart';
+import '../../features/auth/data/adminhome/admin_home_service.dart';
+import '../../features/auth/data/adminhome/admin_take_donation_request_model.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -11,48 +13,80 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  List<AdminDonationRequestModel> _requests = [];
+  List<AdminTakeDonationRequestModel> _takerequests = [];
+  List<AdminDonationRequestModel> get equipmentDonations =>
+      _requests.where((r) => r.type == 'Equipment').toList();
+
+  List<AdminDonationRequestModel> get medicineDonations =>
+      _requests.where((r) => r.type == 'Medicine').toList();
+
+  List<AdminTakeDonationRequestModel> get equipmentTakeRequests =>
+      _takerequests.where((r) => r.type == 'Equipment').toList();
+
+  List<AdminTakeDonationRequestModel> get medicineTakeRequests =>
+      _takerequests.where((r) => r.type == 'Medicine').toList();
+
   bool isDonationActive = true;
   String _fullName = '';
 
-  final List<MedicineItem> medicinesdonations = [
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-  ];
-    final List<MedicineItem> medicinesrequests = [
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-  ];
   @override
   void initState() {
     super.initState();
     _loadUser();
+    _loadAllData();
   }
-  final List<MedicalItem> medicaldonations = [
-    MedicalItem(
-      medicalname: 'Wheel chair',
-      image: 'assets/images/wheelchair.png',
-    ),
-    MedicalItem(
-      medicalname: 'Patient bed',
-      image: 'assets/images/patientbed.jpg',
-    ),
-    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
-  ];
-    final List<MedicalItem> medicalrequests = [
-    MedicalItem(
-      medicalname: 'Wheel chair',
-      image: 'assets/images/wheelchair.png',
-    ),
-    MedicalItem(
-      medicalname: 'Patient bed',
-      image: 'assets/images/patientbed.jpg',
-    ),
-    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
-  ];
+  Future<void> _loadAllData() async {
+    _requests.clear();
+    _takerequests.clear();
+
+    await Future.wait([
+      _loadEquipmentUploadRequests(),
+      _loadMedicineUploadRequests(),
+      _loadEquipmentTakeRequests(),
+      _loadMedicineTakeRequests(),
+    ]);
+  }
+
+
+  Future<void> _loadEquipmentUploadRequests() async {
+    final data = await AdminHomeService().getPendingEquipmentRequests();
+    print('Upload equipment: ${data.length}');
+    if (!mounted) return;
+    setState(() {
+      _requests.addAll(data);
+    });
+  }
+
+  Future<void> _loadMedicineUploadRequests() async {
+    final data = await AdminHomeService().getPendingMedicineRequests();
+    print('Upload medicine: ${data.length}');
+    if (!mounted) return;
+    setState(() {
+      _requests.addAll(data);
+    });
+  }
+  Future<void> _loadEquipmentTakeRequests() async {
+    final data = await AdminHomeService().getPendingTakeEquipmentRequests();
+    print('Take equipment: ${data.length}');
+    if (!mounted) return;
+    setState(() {
+      _takerequests.addAll(data);
+    });
+  }
+
+  Future<void> _loadMedicineTakeRequests() async {
+    final data = await AdminHomeService().getPendingTakeMedicineRequests();
+    print('Take medicine: ${data.length}');
+    if (!mounted) return;
+    setState(() {
+      _takerequests.addAll(data);
+    });
+  }
+  String _formatDate(DateTime? date) {
+    if (date == null) return '-';
+    return '${date.day}/${date.month}/${date.year}';
+  }
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -234,10 +268,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       height: height * 0.23,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: (isDonationActive)? medicaldonations.length:medicalrequests.length,
+        itemCount: (isDonationActive)
+            ? equipmentDonations.length
+            : equipmentTakeRequests.length,
         itemBuilder: (context, index) {
           return Container(
-            width: width * 0.45,
+            width: width * 0.55,
             margin: EdgeInsets.only(right: width * 0.02),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -256,21 +292,67 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
-                    (isDonationActive)?medicaldonations[index].image: medicalrequests[index].image,
+                    isDonationActive
+                        ? 'assets/images/wheelchair.png'
+                        : 'assets/images/patientbed.jpg',
                     height: height * 0.15,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
                 ),
+
                 const SizedBox(height: 15),
                 Row(
                   children: [
                     const SizedBox(width: 6),
-                    Text(
-                      (isDonationActive)?medicaldonations[index].medicalname: medicalrequests[index].medicalname,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          (isDonationActive)
+                              ? equipmentDonations[index].itemName
+                              : equipmentTakeRequests[index].itemName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'Qty: ${(isDonationActive)
+                              ? equipmentDonations[index].quantity
+                              : equipmentTakeRequests[index].quantity}',
+
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          (isDonationActive)
+                              ? equipmentDonations[index].userName
+                              : equipmentTakeRequests[index].userName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                        ),
+                        Text(
+                          (isDonationActive)
+                              ? equipmentDonations[index].userEmail
+                              : equipmentTakeRequests[index].userEmail,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                      ],
                     ),
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 10),
                     Row(
                       children: [
                         Container(
@@ -292,8 +374,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             color: Colors.red,
                             iconSize: 20,
                             onPressed: () {
-                              (isDonationActive)? medicaldonations.removeAt(index): medicalrequests.removeAt(index);
-                              setState(() {});
+                              final item = isDonationActive
+                                  ? equipmentDonations[index]
+                                  : equipmentTakeRequests[index];
+
+                              setState(() {
+                                if (isDonationActive) {
+                                  _requests.remove(item);
+                                } else {
+                                  _takerequests.remove(item);
+                                }
+                              });
                             },
                           ),
                         ),
@@ -318,8 +409,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             color: Colors.green,
                             iconSize: 20,
                             onPressed: () {
-                              (isDonationActive)?medicaldonations.removeAt(index): medicalrequests.removeAt(index);
-                              setState(() {});
+                              final item = isDonationActive
+                                  ? equipmentDonations[index]
+                                  : equipmentTakeRequests[index];
+
+                              setState(() {
+                                if (isDonationActive) {
+                                  _requests.remove(item);
+                                } else {
+                                  _takerequests.remove(item);
+                                }
+                              });
                             },
                           ),
                         ),
@@ -338,7 +438,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget _buildmedicinesList(double width, double height) {
     return Expanded(
       child: ListView.builder(
-        itemCount: (isDonationActive)?medicinesdonations.length: medicinesrequests.length,
+        itemCount: (isDonationActive)
+            ? medicineDonations.length
+            : medicineTakeRequests.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
           return Container(
@@ -359,7 +461,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          (isDonationActive)?medicinesdonations[index].medicinename: medicinesrequests[index].medicinename,
+                          (isDonationActive)
+                              ? medicineDonations[index].itemName
+                              : medicineTakeRequests[index].itemName,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -367,11 +471,34 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ),
                         ),
                         Text(
-                          (isDonationActive)?
-                          "Expired ${medicinesdonations[index].expiry}": "Expired ${medicinesrequests[index].expiry}",
+                          'Qty: ${(isDonationActive)
+                              ? medicineDonations[index].quantity
+                              : medicineTakeRequests[index].quantity}',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+
+                        Text(
+                          (isDonationActive)
+                              ? medicineDonations[index].userName
+                              : medicineTakeRequests[index].userName,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          (isDonationActive)
+                              ? medicineDonations[index].userEmail
+                              : medicineTakeRequests[index].userEmail,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -399,8 +526,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         color: Colors.red,
                         iconSize: 20,
                         onPressed: () {
-                          (isDonationActive)?medicinesdonations.removeAt(index): medicinesrequests.removeAt(index);
-                          setState(() {});
+                          final item = isDonationActive
+                              ? medicineDonations[index]
+                              : medicineTakeRequests[index];
+
+                          setState(() {
+                            if (isDonationActive) {
+                              _requests.remove(item);
+                            } else {
+                              _takerequests.remove(item);
+                            }
+                          });
                         },
                       ),
                     ),
@@ -425,8 +561,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         color: Colors.green,
                         iconSize: 20,
                         onPressed: () {
-                          (isDonationActive)?medicinesdonations.removeAt(index): medicinesrequests.removeAt(index);
-                          setState(() {});
+                          final item = isDonationActive
+                              ? medicineDonations[index]
+                              : medicineTakeRequests[index];
+
+                          setState(() {
+                            if (isDonationActive) {
+                              _requests.remove(item);
+                            } else {
+                              _takerequests.remove(item);
+                            }
+                          });
                         },
                       ),
                     ),
@@ -439,6 +584,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ),
     );
   }
+
   Future<void> _loadUser() async {
     final name = await UserStorage.getFullName();
     if (!mounted) return;
@@ -446,28 +592,4 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       _fullName = name ?? '';
     });
   }
-}
-
-class MedicineItem {
-  final String medicinename;
-  final String expiry;
-  bool medicineadded;
-
-  MedicineItem({
-    required this.medicinename,
-    required this.expiry,
-    this.medicineadded = false,
-  });
-}
-
-class MedicalItem {
-  final String medicalname;
-  final String image;
-  bool medicaladded;
-
-  MedicalItem({
-    required this.medicalname,
-    required this.image,
-    this.medicaladded = false,
-  });
 }
