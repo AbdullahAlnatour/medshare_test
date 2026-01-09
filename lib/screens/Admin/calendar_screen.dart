@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../core/storage/user_storage.dart';
+import '../../features/auth/data/tasks/task_response_model.dart';
+import '../../features/auth/data/tasks/task_service.dart';
+import '../../features/auth/data/tasks/create_task_model.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -8,30 +12,29 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  DateTime selectedDate = DateTime(2024, 12, 13);
+  DateTime selectedDate = DateTime.now();
+  final TaskService _taskService = TaskService();
+  bool _loading = true;
 
-  // Colors matched to the provided images
-  final Color darkTeal = const Color(0xFF085D62); // Button color
-  final Color lightTealAccent = const Color(
-    0xFF34AFB7,
-  ); // Icon selection border
+  List<TaskResponseModel> tasks = [];
 
-  List<Task> tasks = [
-    Task(
-      date: DateTime(2024, 12, 13),
-      time: '3:20PM',
-      title: 'Oxycontin',
-      status: 'Not Match yet',
-      icon: Icons.medication,
-    ),
-    Task(
-      date: DateTime(2024, 12, 13),
-      time: '7:45PM',
-      title: 'Patient bed',
-      status: 'Matched to Dana Ahmad',
-      icon: Icons.bed,
-    ),
-  ];
+  final Color darkTeal = const Color(0xFF085D62);
+  final Color lightTealAccent = const Color(0xFF34AFB7);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
+
+  Future<void> _loadTasks() async {
+    try {
+      final data = await _taskService.getAllTasks();
+      setState(() => tasks = data);
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +76,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
         onTap: () async {
-          final DateTime? picked = await showDatePicker(
+          final picked = await showDatePicker(
             context: context,
             initialDate: selectedDate,
             firstDate: DateTime(2000),
@@ -81,10 +84,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
             builder: (context, child) {
               return Theme(
                 data: Theme.of(context).copyWith(
-                  colorScheme: ColorScheme.light(
-                    primary: lightTealAccent,
-                    onPrimary: Colors.white,
-                    onSurface: Colors.black,
+                  colorScheme: const ColorScheme.light(
+                    primary: Color(0xFF34AFB7), // 🔵 اللون الرئيسي (الهيدر + اليوم المحدد)
+                    onPrimary: Colors.white,    // لون النص داخل الهيدر
+                    onSurface: Colors.black,    // لون النص العام
+                  ),
+                  textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Color(0xFF34AFB7), // CANCEL / OK
+                    ),
                   ),
                 ),
                 child: child!,
@@ -98,14 +106,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildTasksList() {
-    final filteredTasks = tasks
-        .where(
-          (t) =>
-              t.date.year == selectedDate.year &&
-              t.date.month == selectedDate.month &&
-              t.date.day == selectedDate.day,
-        )
-        .toList();
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final filteredTasks = tasks.where((t) =>
+    t.dueDate.year == selectedDate.year &&
+        t.dueDate.month == selectedDate.month &&
+        t.dueDate.day == selectedDate.day).toList();
 
     if (filteredTasks.isEmpty) {
       return const Center(child: Text("No tasks for this day."));
@@ -114,11 +122,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: filteredTasks.length,
-      itemBuilder: (context, index) => _buildTaskCard(filteredTasks[index]),
+      itemBuilder: (context, index) =>
+          _buildTaskCard(filteredTasks[index]),
     );
   }
 
-  Widget _buildTaskCard(Task task) {
+  Widget _buildTaskCard(TaskResponseModel task) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -126,7 +135,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           SizedBox(
             width: 70,
             child: Text(
-              task.time,
+              TimeOfDay.fromDateTime(task.dueDate).format(context),
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
@@ -139,59 +148,88 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => setState(() => task.isDone = !task.isDone),
-                    child: Icon(
-                      task.isDone ? Icons.check_circle : task.icon,
-                      color: task.isDone ? Colors.green : lightTealAccent,
-                    ),
-                  ),
+                  Icon(Icons.task_alt, color: lightTealAccent),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          task.title,
+                          'Task #${task.taskId}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        task.isEditing
-                            ? TextField(
-                                style: const TextStyle(fontSize: 12),
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  hintText: "Edit status...",
-                                ),
-                                onChanged: (val) => task.status = val,
-                              )
-                            : Text(
-                                task.status,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                        Text(
+                          task.notes ?? '',
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: Icon(
-                      task.isEditing ? Icons.save : Icons.edit,
-                      size: 20,
-                      color: darkTeal,
-                    ),
-                    onPressed: () {
-                      setState(() => task.isEditing = !task.isEditing);
-                      if (!task.isEditing) _showSuccessDialog("Changes Saved!");
+                    icon: Icon(Icons.edit),
+                    color: Color(0xFF34AFB7),
+                    onPressed: () async {
+                      final controller = TextEditingController(text: task.notes);
+
+                      final updated = await showDialog<String>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          title: const Text('Edit Notes'),
+                          content: TextField(
+                            controller: controller,
+                            maxLines: 3,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter notes',
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel',style: TextStyle(color: Color(0xFF34AFB7)),),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF34AFB7), // لون الخلفية
+                                foregroundColor: Colors.white,            // لون النص
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () =>
+                                  Navigator.pop(context, controller.text),
+                              child: const Text('Save',style: TextStyle(backgroundColor: Color(0xFF34AFB7))),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (updated != null) {
+                        await _taskService.updateTaskNotes(
+                          taskId: task.taskId,
+                          notes: updated,
+                        );
+
+                        setState(() {
+                          task.notes = updated; // UI update
+                        });
+                      }
                     },
                   ),
+
                   IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: Colors.redAccent,
-                      size: 20,
-                    ),
-                    onPressed: () => setState(() => tasks.remove(task)),
+                    icon: const Icon(Icons.delete_outline,
+                        color: Colors.redAccent),
+                    onPressed: () async {
+                      await _taskService.cancelTask(task.taskId);
+
+                      setState(() {
+                        tasks.removeWhere((t) => t.taskId == task.taskId);
+                      });
+                    },
                   ),
                 ],
               ),
@@ -211,45 +249,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: darkTeal,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           onPressed: _showAddTaskDialog,
           child: const Text(
             'Add Task',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
           ),
         ),
       ),
     );
   }
 
-  // --- Styled Dialogs ---
+  // ---------------- ADD TASK DIALOG ----------------
 
   void _showAddTaskDialog() {
-    final titleController = TextEditingController();
+    final notesController = TextEditingController();
     final timeController = TextEditingController();
-    IconData selectedIcon = Icons.medication;
-    String? titleError;
+    TimeOfDay? selectedTime;
+
+    String? notesError;
     String? timeError;
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           title: const Center(
-            child: Text(
-              "Add New Task",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            child: Text("Add New Task",
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -259,12 +293,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: 'Time',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.access_time, color: Colors.grey),
                   errorText: timeError,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  prefixIcon:
+                  const Icon(Icons.access_time, color: Colors.grey),
                 ),
                 onTap: () async {
                   final picked = await showTimePicker(
@@ -273,19 +304,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     builder: (context, child) {
                       return Theme(
                         data: Theme.of(context).copyWith(
-                          colorScheme: ColorScheme.light(
-                            primary: lightTealAccent, // لون الساعة + الأزرار
-                            onPrimary: Colors.white, // لون النص داخل الدائرة
-                            onSurface: Colors.black, // لون النص العام
+                          timePickerTheme: const TimePickerThemeData(
+                            dialHandColor: Color(0xFF34AFB7),
+                            dialBackgroundColor: Color(0xFFEEF6F6),
+                            hourMinuteColor: Color(0xFF34AFB7),
+                            hourMinuteTextColor: Colors.white,
+                            dayPeriodColor: Color(0xFF34AFB7),
+                            dayPeriodTextColor: Colors.white,
+                          ),
+                          colorScheme: const ColorScheme.light(
+                            primary: Color(0xFF34AFB7), // OK button + selected
                           ),
                         ),
                         child: child!,
                       );
                     },
                   );
-
                   if (picked != null) {
                     setDialogState(() {
+                      selectedTime = picked;
                       timeController.text = picked.format(context);
                     });
                   }
@@ -293,100 +330,53 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               const SizedBox(height: 16),
               TextField(
-                controller: titleController,
+                controller: notesController,
                 decoration: InputDecoration(
-                  labelText: 'Task Title',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  errorText: titleError,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  labelText: 'Notes',
+                  errorText: notesError,
                 ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children:
-                    [
-                      Icons.medication,
-                      Icons.bed,
-                      Icons.local_hospital,
-                      Icons.medical_services,
-                    ].map((icon) {
-                      final isSelected = selectedIcon == icon;
-                      return GestureDetector(
-                        onTap: () => setDialogState(() => selectedIcon = icon),
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? lightTealAccent.withOpacity(0.1)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isSelected
-                                  ? lightTealAccent
-                                  : Colors.grey.shade300,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Icon(
-                            icon,
-                            color: isSelected ? lightTealAccent : Colors.grey,
-                          ),
-                        ),
-                      );
-                    }).toList(),
               ),
             ],
           ),
           actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-                vertical: 8.0,
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: darkTeal,
+                minimumSize: const Size(double.infinity, 50),
               ),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: darkTeal,
-                  minimumSize: const Size(double.infinity, 54),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                onPressed: () {
-                  setDialogState(() {
-                    titleError = titleController.text.isEmpty
-                        ? "Please fill the field"
-                        : null;
-                    timeError = timeController.text.isEmpty
-                        ? "Please fill the field"
-                        : null;
-                  });
-                  if (titleError == null && timeError == null) {
-                    setState(() {
-                      tasks.add(
-                        Task(
-                          date: selectedDate,
-                          time: timeController.text,
-                          title: titleController.text,
-                          status: "Not Match yet",
-                          icon: selectedIcon,
-                        ),
-                      );
-                    });
-                    Navigator.pop(context);
-                    _showSuccessDialog("Task Assigned!");
-                  }
-                },
-                child: const Text(
-                  "Add",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+              onPressed: () async {
+                setDialogState(() {
+                  notesError = notesController.text.isEmpty ? 'Required' : null;
+                  timeError = selectedTime == null ? 'Required' : null;
+                });
+
+                if (notesError != null || timeError != null) return;
+
+                final dueDateTime = DateTime(
+                  selectedDate.year,
+                  selectedDate.month,
+                  selectedDate.day,
+                  selectedTime!.hour,
+                  selectedTime!.minute,
+                );
+
+                // ✅ 2) استدعي createTask مع adminId
+                await _taskService.createTask(
+                  dueDate: dueDateTime,
+                  notes: notesController.text,
+                );
+
+                // ✅ 3) أمان بعد await
+                if (!mounted) return;
+
+                Navigator.pop(context);
+                _loadTasks();
+              }
+,
+              child: const Text(
+                "Add",
+                style:
+                TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -395,56 +385,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  void _showSuccessDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        Future.delayed(const Duration(seconds: 2), () {
-          if (Navigator.canPop(context)) Navigator.of(context).pop();
-        });
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 20),
-              const Icon(
-                Icons.check_circle,
-                color: Color(0xFF5DB063),
-                size: 120,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                message,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildDivider() {
-    final count = tasks.where((t) => t.date.day == selectedDate.day).length;
+    final count = tasks.where((t) =>
+    t.dueDate.year == selectedDate.year &&
+        t.dueDate.month == selectedDate.month &&
+        t.dueDate.day == selectedDate.day).length;
+
     return Stack(
       alignment: Alignment.center,
       children: [
-        Divider(color: Colors.grey.shade300, thickness: 1),
+        Divider(color: Colors.grey.shade300),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           color: Colors.white,
-          child: Text(
-            "There are $count plans",
-            style: TextStyle(color: Colors.grey.shade600),
-          ),
+          child: Text("There are $count plans",
+              style: TextStyle(color: Colors.grey.shade600)),
         ),
       ],
     );
@@ -452,6 +407,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   String _getDayName(int weekday) =>
       ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][weekday % 7];
+
   String _getMonthName(int month) => [
     'Jan',
     'Feb',
@@ -464,26 +420,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     'Sep',
     'Oct',
     'Nov',
-    'Dec',
+    'Dec'
   ][month - 1];
-}
-
-class Task {
-  final DateTime date;
-  final String time;
-  final String title;
-  String status;
-  final IconData icon;
-  bool isDone;
-  bool isEditing;
-
-  Task({
-    required this.date,
-    required this.time,
-    required this.title,
-    required this.status,
-    required this.icon,
-    this.isDone = false,
-    this.isEditing = false,
-  });
 }
