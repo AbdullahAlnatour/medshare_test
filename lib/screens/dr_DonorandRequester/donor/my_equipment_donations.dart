@@ -1,96 +1,76 @@
 import 'package:flutter/material.dart';
-//DONOR TAB
-enum DonationStatus {
-  pending,
-  approved,
-  declined,
+import '../../../core/storage/token_storage.dart';
+import '../../../features/auth/data/donations/donation_request_model.dart';
+import '../../../features/auth/data/donations/donation_request_service.dart';
+
+class MyEquipmentDonationList extends StatefulWidget {
+  const MyEquipmentDonationList({super.key});
+
+  @override
+  State<MyEquipmentDonationList> createState() =>
+      _MyEquipmentDonationListState();
 }
 
-class MyEquipmentDonation {
-  final String name;
-  final IconData icon;
-  final DonationStatus status;
+class _MyEquipmentDonationListState extends State<MyEquipmentDonationList> {
+  final DonationRequestService _service = DonationRequestService();
 
-  MyEquipmentDonation({
-    required this.name,
-    required this.icon,
-    required this.status,
-  });
-}
+  bool loading = true;
+  List<AdminDonationRequest> donations = [];
 
-class MyEquipmentDonationList extends StatelessWidget {
-  MyEquipmentDonationList({super.key});
+  @override
+  void initState() {
+    super.initState();
+    _loadDonations();
+  }
 
-  /// التبرعات اللي اليوزر عملها ونزلت على التطبيق
-  final List<MyEquipmentDonation> myEquipmentDonations = [
-    MyEquipmentDonation(
-      name: "Patient bed",
-      icon: Icons.bed,
-      status: DonationStatus.approved,
-    ),
-    MyEquipmentDonation(
-      name: "Crutch",
-      icon: Icons.accessibility,
-      status: DonationStatus.pending,
-    ),
-    MyEquipmentDonation(
-      name: "Wheelchair",
-      icon: Icons.wheelchair_pickup_outlined,
-      status: DonationStatus.declined,
-    )
-  ];
+  Future<void> _loadDonations() async {
+    final token = await TokenStorage.getAccessToken();
+    if (token == null) return;
+
+    try {
+      final equipment = await _service.getPendingEquipmentRequests(token);
+      setState(() {
+        donations = equipment;
+        loading = false;
+      });
+    } catch (e) {
+      print("Error loading donations: $e");
+      setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (donations.isEmpty) {
+      return const Center(
+        child: Text(
+          "You haven't donated any items yet.",
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       child: Column(
-        children: [
-          if (myEquipmentDonations.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Text(
-                "You haven't donated any items yet.",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-          ...myEquipmentDonations.map(
-            (donation) => _MyEquipmentDonationTile(donation: donation),
-          ),
-        ],
+        children: donations.map(
+              (donation) => _DonationTile(donation: donation),
+        ).toList(),
       ),
     );
   }
 }
 
-class _MyEquipmentDonationTile extends StatelessWidget {
-  final MyEquipmentDonation donation;
+class _DonationTile extends StatelessWidget {
+  final AdminDonationRequest donation;
 
-  const _MyEquipmentDonationTile({required this.donation});
+  const _DonationTile({required this.donation});
 
   @override
   Widget build(BuildContext context) {
-    late final String statusText;
-    late final Color statusColor;
-    late final IconData statusIcon;
-
-    switch (donation.status) {
-      case DonationStatus.approved:
-        statusText = "Approved";
-        statusColor = Colors.green;
-        statusIcon = Icons.check_circle;
-        break;
-      case DonationStatus.pending:
-        statusText = "Pending approval";
-        statusColor = Colors.orange;
-        statusIcon = Icons.hourglass_bottom;
-        break;
-      case DonationStatus.declined:
-        statusText = "Declined";
-        statusColor = Colors.red;
-        statusIcon = Icons.cancel;
-        break;
-    }
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -112,10 +92,10 @@ class _MyEquipmentDonationTile extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: Color(0xFF34AFB7).withOpacity(.15),
+              color: const Color(0xFF34AFB7).withOpacity(.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(donation.icon, color: Color(0xFF34AFB7)),
+            child: const Icon(Icons.medical_services, color: Color(0xFF34AFB7)),
           ),
           const SizedBox(width: 12),
 
@@ -125,7 +105,7 @@ class _MyEquipmentDonationTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  donation.name,
+                  donation.itemName,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -133,10 +113,10 @@ class _MyEquipmentDonationTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  statusText,
-                  style: TextStyle(
+                  "Pending approval",
+                  style: const TextStyle(
                     fontSize: 12,
-                    color: statusColor,
+                    color: Colors.orange,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -145,13 +125,9 @@ class _MyEquipmentDonationTile extends StatelessWidget {
           ),
 
           /// STATUS ICON
-          Icon(
-            statusIcon,
-            color: statusColor,
-            size: 20,
-          ),
+          const Icon(Icons.hourglass_bottom, color: Colors.orange, size: 20),
         ],
       ),
     );
   }
-  }
+}

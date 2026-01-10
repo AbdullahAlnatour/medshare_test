@@ -1,5 +1,5 @@
 class AdminTakeDonationRequestModel {
-  final int donationId;
+  final int requestId;
   final String itemName;
   final int quantity;
   final int userId;
@@ -9,7 +9,7 @@ class AdminTakeDonationRequestModel {
   final DateTime? expirationDate;
 
   AdminTakeDonationRequestModel({
-    required this.donationId,
+    required this.requestId,
     required this.itemName,
     required this.quantity,
     required this.userId,
@@ -21,7 +21,7 @@ class AdminTakeDonationRequestModel {
 
   factory AdminTakeDonationRequestModel.fromJson(Map<String, dynamic> json) {
     return AdminTakeDonationRequestModel(
-      donationId: json['donationId'],
+      requestId: json['requestId'],
       itemName: json['itemName'],
       quantity: json['quantity'],
       userId: json['userId'],
