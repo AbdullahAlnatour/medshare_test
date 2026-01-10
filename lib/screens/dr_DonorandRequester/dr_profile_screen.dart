@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:test_app/widgets/custom_text_field.dart';
 import '../../features/auth/data/drprofile/dr_profile_service.dart';
+import '../signin_screen.dart';
 
 class DrProfileScreen extends StatefulWidget {
   const DrProfileScreen({super.key});
@@ -93,9 +94,8 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
                             children: [
                               SizedBox(height: height * 0.005),
                               _profileBuildForm(context),
-                              SizedBox(height: height * 0.31),
+                              SizedBox(height: height * 0.23),
                               _profileBuildActions(context),
-                              SizedBox(height: height * 0.03),
                             ],
                           ),
                         ),
@@ -289,23 +289,51 @@ class _DrProfileScreenState extends State<DrProfileScreen> {
 
   Widget _profileBuildActions(BuildContext context) {
     final primary = Theme.of(context).primaryColor;
-    return SizedBox(
-      height: 56,
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return Column(
+      children: [
+        SizedBox(
+          height: 56,
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: _profileOnCreatePressed,
+            child: const Text(
+              'Save',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
           ),
-          foregroundColor: Colors.white,
         ),
-        onPressed: _profileOnCreatePressed,
-        child: const Text(
-          'Save',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        SizedBox(height: 20),
+        SizedBox(
+          height: 56,
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: (){
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) =>  SignInScreen()),
+              );
+            },
+            child: const Text(
+              'Sign out',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
