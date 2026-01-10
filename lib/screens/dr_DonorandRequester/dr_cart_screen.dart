@@ -13,7 +13,6 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   final CartService _cartService = CartService();
   late Future<CartResponseModel> _cartFuture;
-  bool emptyCart=false;
 
   @override
   void initState() {
@@ -82,7 +81,6 @@ class _CartScreenState extends State<CartScreen> {
 
                 if (equipmentCartItems.isEmpty &&
                     medicineCartItems.isEmpty) {
-                  emptyCart = true;
                   return _buildEmptyCart();
                 }
 
@@ -121,14 +119,8 @@ class _CartScreenState extends State<CartScreen> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () async {
-                if(!emptyCart){
-                  await _cartService.checkout();
-                  _reloadCart();
-                  _cartToast(context, "Your checkout is Done!");
-                }
-                else{
-                  _cartToast(context, "Can't checkout your cart is empty!");
-                }
+                await _cartService.checkout();
+                _reloadCart();
               },
               child: const Text(
                 'Checkout',
@@ -278,17 +270,6 @@ class _CartScreenState extends State<CartScreen> {
         ],
       ),
     );
-  }
-}
-void _cartToast(BuildContext context, String msg) {
-  if (msg == "Your checkout is Done!") {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: Colors.green),
-    );
-  } else {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.orange));
   }
 }
 

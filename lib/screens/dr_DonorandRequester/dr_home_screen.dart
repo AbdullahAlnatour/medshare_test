@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:test_app/screens/dr_DonorandRequester/dr_notification_screen.dart';
 
 import '../../core/storage/user_storage.dart';
+import '../../features/auth/data/donations/donations_service.dart';
+import '../../features/auth/data/donations/donation_medicine_model.dart';
+import '../../features/auth/data/donations/donation_equipment_model.dart';
+import '../../features/auth/data/Cart/cart_service.dart';
+import '../../features/auth/data/Cart/add_to_cart_dto.dart';
 
 class DrHomeScreen extends StatefulWidget {
   const DrHomeScreen({super.key});
@@ -14,30 +19,49 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   bool isDonationActive = true;
   String _fullName = '';
 
-  final List<MedicineItem> medicines = [
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/04'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-    MedicineItem(medicinename: 'Oxycodone', expiry: '26/08'),
-    MedicineItem(medicinename: 'Amoxicillin', expiry: '26/06'),
-  ];
+  // Fetched from backend
+  List<DonationMedicineModel> medicines = [];
+  bool _medicinesLoading = false;
 
   @override
   void initState() {
     super.initState();
     _loadUser();
+    _loadApprovedEquipment();
+    _loadApprovedMedicines();
   }
 
-  final List<MedicalItem> medicalitems = [
-    MedicalItem(
-      medicalname: 'Wheel chair',
-      image: 'assets/images/wheelchair.png',
-    ),
-    MedicalItem(
-      medicalname: 'Patient bed',
-      image: 'assets/images/patientbed.jpg',
-    ),
-    MedicalItem(medicalname: 'Crutches', image: 'assets/images/crutches.jpg'),
-  ];
+  final _cartService = CartService();
+  final _donationsService = DonationsService();
+
+  Future<void> _loadApprovedEquipment() async {
+    setState(() => _equipmentLoading = true);
+    try {
+      final data = await _donationsService.getApprovedEquipment();
+      setState(() => equipment = data);
+    } catch (e) {
+      // ignore errors for now; keep UI stable
+      print('Failed to load equipment: $e');
+    } finally {
+      if (mounted) setState(() => _equipmentLoading = false);
+    }
+  }
+
+  Future<void> _loadApprovedMedicines() async {
+    setState(() => _medicinesLoading = true);
+    try {
+      final data = await _donationsService.getApprovedMedicines();
+      setState(() => medicines = data);
+    } catch (e) {
+      print('Failed to load medicines: $e');
+    } finally {
+      if (mounted) setState(() => _medicinesLoading = false);
+    }
+  }
+
+  // Fetched from backend
+  List<DonationEquipmentModel> equipment = [];
+  bool _equipmentLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -173,12 +197,20 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   Widget _buildMedicalEquipment(double width, double height) {
+    if (_equipmentLoading) {
+      return SizedBox(
+        height: height * 0.23,
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return SizedBox(
       height: height * 0.23,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: medicalitems.length,
+        itemCount: equipment.length,
         itemBuilder: (context, index) {
+          final item = equipment[index];
           return Container(
             width: width * 0.45,
             margin: EdgeInsets.only(right: width * 0.02),
@@ -198,22 +230,46 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    medicalitems[index].image,
-                    height: height * 0.15,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: item.image1 != null && item.image1!.isNotEmpty
+                      ? Image.network(
+                          item.image1!,
+                          height: height * 0.15,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'assets/images/wheelchair.png',
+                          height: height * 0.15,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 const SizedBox(height: 15),
                 Row(
                   children: [
                     const SizedBox(width: 6),
-                    Text(
-                      medicalitems[index].medicalname,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.itemName,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Quantity ${item.quantity}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 55),
+                    const SizedBox(width: 8),
                     Row(
                       children: [
                         Container(
@@ -230,13 +286,63 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                               ),
                             ],
                           ),
-                          child: IconButton(
-                            icon: Icon(Icons.add_circle_outlined),
-                            color: Color(0xFF34AFB7),
-                            iconSize: 20,
-                            onPressed: () {
-                              medicalitems.removeAt(index);
-                              setState(() {});
+                          child: StatefulBuilder(
+                            builder: (context, setLocalState) {
+                              bool adding = false;
+                              return Builder(
+                                builder: (ctx) {
+                                  return IconButton(
+                                    icon: const Icon(Icons.add_circle_outlined),
+                                    color: const Color(0xFF34AFB7),
+                                    iconSize: 20,
+                                    onPressed: adding
+                                        ? null
+                                        : () async {
+                                            setLocalState(() => adding = true);
+                                            final ok = await _cartService
+                                                .addToCart(
+                                                  AddToCartDto(
+                                                    donationId: item
+                                                        .donationEquipmentId,
+                                                    quantity: 1,
+                                                    cartType: 1,
+                                                    itemName: item.itemName,
+                                                  ),
+                                                );
+                                            setLocalState(() => adding = false);
+
+                                            if (!mounted) return;
+                                            if (ok) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Added to cart',
+                                                  ),
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                              );
+                                              // remove only on confirmed success
+                                              setState(
+                                                () => equipment.removeAt(index),
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Failed to add to cart. Try again later.',
+                                                  ),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                  );
+                                },
+                              );
                             },
                           ),
                         ),
@@ -253,11 +359,16 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   Widget _buildMedicinesList(double width, double height) {
+    if (_medicinesLoading) {
+      return const Expanded(child: Center(child: CircularProgressIndicator()));
+    }
+
     return Expanded(
       child: ListView.builder(
         itemCount: medicines.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
+          final item = medicines[index];
           return Container(
             margin: EdgeInsets.only(bottom: height * 0.015),
             padding: EdgeInsets.all(width * 0.04),
@@ -276,7 +387,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          medicines[index].medicinename,
+                          item.itemName,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -284,12 +395,22 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                           ),
                         ),
                         Text(
-                          "Expired ${medicines[index].expiry}",
+                          "Quantity ${item.quantity}",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
                           ),
                         ),
+                        if (item.expiry != null && item.expiry!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Expired ${item.expiry}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -311,13 +432,58 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                           ),
                         ],
                       ),
-                      child: IconButton(
-                        icon: Icon(Icons.add_circle_outlined),
-                        color: Color(0xFF34AFB7),
-                        iconSize: 20,
-                        onPressed: () {
-                          medicines.removeAt(index);
-                          setState(() {});
+                      child: StatefulBuilder(
+                        builder: (context, setLocalState) {
+                          bool adding = false;
+                          return Builder(
+                            builder: (ctx) {
+                              return IconButton(
+                                icon: const Icon(Icons.add_circle_outlined),
+                                color: const Color(0xFF34AFB7),
+                                iconSize: 20,
+                                onPressed: adding
+                                    ? null
+                                    : () async {
+                                        setLocalState(() => adding = true);
+                                        final ok = await _cartService.addToCart(
+                                          AddToCartDto(
+                                            donationId: item.donationMedicineId,
+                                            quantity: 1,
+                                            cartType: 2,
+                                            itemName: item.itemName,
+                                          ),
+                                        );
+                                        setLocalState(() => adding = false);
+
+                                        if (!mounted) return;
+                                        if (ok) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Added to cart'),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                          setState(
+                                            () => medicines.removeAt(index),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Failed to add to cart. Try again later.',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      },
+                              );
+                            },
+                          );
                         },
                       ),
                     ),
@@ -330,6 +496,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
       ),
     );
   }
+
   Future<void> _loadUser() async {
     final name = await UserStorage.getFullName();
     if (!mounted) return;

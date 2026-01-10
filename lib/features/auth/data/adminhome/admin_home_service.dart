@@ -21,8 +21,7 @@ class AdminHomeService {
   // أخذ donation
   Future<List<AdminTakeDonationRequestModel>>
   getPendingTakeEquipmentRequests() async {
-    final res =
-    await ApiClient.dio.get('/admin/pending-equipmenttake');
+    final res = await ApiClient.dio.get('/admin/pending-equipmenttake');
     return (res.data as List)
         .map((e) => AdminTakeDonationRequestModel.fromJson(e))
         .toList();
@@ -30,8 +29,7 @@ class AdminHomeService {
 
   Future<List<AdminTakeDonationRequestModel>>
   getPendingTakeMedicineRequests() async {
-    final res =
-    await ApiClient.dio.get('/admin/pending-medicinetake');
+    final res = await ApiClient.dio.get('/admin/pending-medicinetake');
     return (res.data as List)
         .map((e) => AdminTakeDonationRequestModel.fromJson(e))
         .toList();

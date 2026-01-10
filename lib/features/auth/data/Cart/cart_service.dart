@@ -1,56 +1,26 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../../../core/storage/token_storage.dart';
+git adimport '../../../../core/storage/token_storage.dart';
+import '../../../../core/api/api_client.dart' as _api;
 import 'add_to_cart_dto.dart';
 import 'cart_response_model.dart';
 
 class CartService {
-  final String baseUrl = 'http://10.0.2.2:5149/api/Requests';
-
   Future<CartResponseModel> getMyCart() async {
     print('🟡 getMyCart called');
 
-    final token = await TokenStorage.getAccessToken();
-    print('🟡 token: $token');
-
-    if (token == null) {
-      throw Exception('Access token not found');
-    }
-
-    final url = '$baseUrl/myCart';
-    print('🟡 URL: $url');
-
-    late http.Response response;
     try {
-      response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final resp = await _api.ApiClient.dio.get('/Requests/myCart');
+      print('🟢 getMyCart status: ${resp.statusCode}');
+      return CartResponseModel.fromJson(resp.data);
     } catch (e) {
-      print('🔴 NETWORK ERROR: $e');
+      print('🔴 getMyCart error: $e');
       rethrow;
-    }
-
-    print('🟢 STATUS: ${response.statusCode}');
-    print('🟢 BODY: ${response.body}');
-
-    if (response.statusCode == 200) {
-      return CartResponseModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception(
-        'Failed to load cart (${response.statusCode})\n${response.body}',
-      );
     }
   }
 
-
-  Future<void> addToCart(AddToCartDto dto) async {
-    final token = await TokenStorage.getAccessToken();
-    if (token == null) {
-      throw Exception('Access token not found');
-    }
+  /// Adds item to cart and returns `true` if server responded with 200.
+  /// Returns `false` if an error occurred or non-200 status.
+  Future<bool> addToCart(AddToCartDto dto) async {
+    print('🟡 addToCart dto: ${dto.toJson()}');
 
     late String endpoint;
     if (dto.cartType == 1) {
@@ -58,64 +28,46 @@ class CartService {
     } else if (dto.cartType == 2) {
       endpoint = 'addMedicineToCart';
     } else {
-      throw Exception('Invalid cart type');
+      print('🔴 addToCart invalid cartType: ${dto.cartType}');
+      return false;
     }
 
-    final response = await http.put(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(dto.toJson()),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to add item to cart (${response.statusCode})',
+    try {
+      print('🟡 ApiClient.baseUrl: ${_api.ApiClient.dio.options.baseUrl}');
+      final resp = await _api.ApiClient.dio.put(
+        '/Requests/$endpoint',
+        data: dto.toJson(),
       );
+      print('🟢 addToCart status: ${resp.statusCode}');
+      return resp.statusCode == 200;
+    } catch (e) {
+      print('🔴 addToCart error: $e');
+      return false;
     }
   }
 
   Future<void> removeFromCart(AddToCartDto dto) async {
-    final token = await TokenStorage.getAccessToken();
-    if (token == null) {
-      throw Exception('Access token not found');
-    }
-
-    final response = await http.put(
-      Uri.parse('$baseUrl/removeFromCart'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(dto.toJson()),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to remove item from cart (${response.statusCode})',
+    try {
+      final resp = await _api.ApiClient.dio.put(
+        '/Requests/removeFromCart',
+        data: dto.toJson(),
       );
+      if (resp.statusCode != 200)
+        throw Exception('Failed to remove item from cart (${resp.statusCode})');
+    } catch (e) {
+      print('🔴 removeFromCart error: $e');
+      rethrow;
     }
   }
 
   Future<void> checkout() async {
-    final token = await TokenStorage.getAccessToken();
-    if (token == null) {
-      throw Exception('Access token not found');
-    }
-
-    final response = await http.put(
-      Uri.parse('$baseUrl/checkoutMyCart'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Checkout failed (${response.statusCode})',
-      );
+    try {
+      final resp = await _api.ApiClient.dio.put('/Requests/checkoutMyCart');
+      if (resp.statusCode != 200)
+        throw Exception('Checkout failed (${resp.statusCode})');
+    } catch (e) {
+      print('🔴 checkout error: $e');
+      rethrow;
     }
   }
 }
