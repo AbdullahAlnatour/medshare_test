@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../../core/api/api_client.dart' as _api;
 import 'add_to_cart_dto.dart';
 import 'cart_response_model.dart';
@@ -20,7 +22,6 @@ class CartService {
   /// Returns `false` if an error occurred or non-200 status.
   Future<bool> addToCart(AddToCartDto dto) async {
     print('🟡 addToCart dto: ${dto.toJson()}');
-
     late String endpoint;
     if (dto.cartType == 1) {
       endpoint = 'addEquipmentToCart';
@@ -30,7 +31,6 @@ class CartService {
       print('🔴 addToCart invalid cartType: ${dto.cartType}');
       return false;
     }
-
     try {
       print('🟡 ApiClient.baseUrl: ${_api.ApiClient.dio.options.baseUrl}');
       final resp = await _api.ApiClient.dio.put(
@@ -41,7 +41,12 @@ class CartService {
       return resp.statusCode == 200;
     } catch (e) {
       print('🔴 addToCart error: $e');
-      return false;
+      if (e is DioException) {
+        final msg = e.response?.data?.toString() ??
+            'Quantity exceeds available amount';
+        throw Exception(msg);
+      }
+      throw Exception('Failed to add item to cart');
     }
   }
 

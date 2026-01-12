@@ -1,36 +1,60 @@
 import 'package:flutter/material.dart';
 import '../../../../widgets/toggle_pill.dart';
 import '../../../../theme/colors.dart';
+import '../../../features/auth/data/unavailable donation/reqeust_service.dart';
 
 class RequestNewItemSheet extends StatefulWidget {
+  const RequestNewItemSheet({super.key});
+
   @override
   State<RequestNewItemSheet> createState() => _RequestNewItemSheetState();
 }
 
 class _RequestNewItemSheetState extends State<RequestNewItemSheet> {
   final _formKey = GlobalKey<FormState>();
+  final _service = RequestService();
 
   String _type = "Medicine";
 
   final _nameCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
 
-  void _submit() {
+  bool _sending = false;
+
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final data = {
-      "type": _type,
-      "name": _nameCtrl.text,
-      "desc": _descCtrl.text,
-    };
+    setState(() => _sending = true);
 
-    debugPrint("NEW REQUEST => $data");
+    try {
+      if (_type == "Medicine") {
+        await _service.createUnavailableMedicine(
+          itemName: _nameCtrl.text.trim(),
+          description: _descCtrl.text.trim(),
+        );
+      } else {
+        await _service.createUnavailableEquipment(
+          itemName: _nameCtrl.text.trim(),
+          description: _descCtrl.text.trim(),
+        );
+      }
 
-    Navigator.pop(context);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Request submitted")),
-    );
+      if (!mounted) return;
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Request submitted")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed: $e")),
+      );
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
   }
 
   @override
@@ -92,7 +116,7 @@ class _RequestNewItemSheetState extends State<RequestNewItemSheet> {
                     labelText: "Item Name *",
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) => v!.isEmpty ? "Required" : null,
+                  validator: (v) => v == null || v.isEmpty ? "Required" : null,
                 ),
 
                 const SizedBox(height: 12),
@@ -105,26 +129,38 @@ class _RequestNewItemSheetState extends State<RequestNewItemSheet> {
                   ),
                   maxLines: 3,
                 ),
+
                 const SizedBox(height: 20),
+
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: _sending ? null : () => Navigator.pop(context),
                         child: const Text("Cancel"),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _submit,
+                        onPressed: _sending ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: kTeal),
-                        child: const Text("Send"),
+                          backgroundColor: kTeal,
+                        ),
+                        child: _sending
+                            ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                            : const Text("Send"),
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

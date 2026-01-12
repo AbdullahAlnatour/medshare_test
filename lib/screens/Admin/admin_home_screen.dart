@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_app/screens/Admin/admin_notification_screen.dart';
+import '../../core/api/api_client.dart';
 import '../../core/storage/user_storage.dart';
 import '../../features/auth/data/adminhome/admin_donation_request_model.dart';
 import '../../features/auth/data/adminhome/admin_home_service.dart';
@@ -13,13 +14,15 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
-  List<AdminDonationRequestModel> _requests = [];
+  String apiBase = "http://10.0.2.2:5149";
+
+  List<AdminDonationRequestedModel> _requests = [];
   List<AdminTakeDonationRequestModel> _takerequests = [];
 
-  List<AdminDonationRequestModel> get equipmentDonations =>
+  List<AdminDonationRequestedModel> get equipmentDonations =>
       _requests.where((r) => r.type == 'Equipment').toList();
 
-  List<AdminDonationRequestModel> get medicineDonations =>
+  List<AdminDonationRequestedModel> get medicineDonations =>
       _requests.where((r) => r.type == 'Medicine').toList();
 
   List<AdminTakeDonationRequestModel> get equipmentTakeRequests =>
@@ -284,6 +287,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               item.userName,
               item.userEmail,
               item.requestId,
+              item.image1,      // ⬅️ مرّر الصورة
               true,
             );
           } else {
@@ -296,6 +300,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               item.userName,
               item.userEmail,
               item.requestId,
+              item.image1,      // ⬅️ مرّر الصورة
               false,
             );
           }
@@ -312,6 +317,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       String userName,
       String userEmail,
       int requestId,
+      String image1,
       bool isUploadRequest) {
     return Container(
       width: width * 0.65,
@@ -332,15 +338,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: Image.asset(
-              isUploadRequest
-                  ? 'assets/images/wheelchair.png'
-                  : 'assets/images/patientbed.jpg',
+            child: Image.network(
+              '${apiBase}$image1', // أو baseUrl تبعك
               width: 250,
               height: 120,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/images/placeholder.png',
+                  width: 250,
+                  height: 120,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
           ),
+
 
           const SizedBox(height: 20),
 

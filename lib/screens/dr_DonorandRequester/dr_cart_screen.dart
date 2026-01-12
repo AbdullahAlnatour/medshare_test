@@ -211,14 +211,23 @@ class _CartScreenState extends State<CartScreen> {
                 icon: const Icon(Icons.add_circle_outline),
                 color: const Color(0xFF34AFB7),
                 onPressed: () async {
-                  await _cartService.addToCart(
-                    AddToCartDto(
-                      donationId: item.donationId,
-                      quantity: 1,
-                      cartType: item.cartType,
-                    ),
-                  );
-                  _reloadCart();
+                  try {
+                    await _cartService.addToCart(
+                      AddToCartDto(
+                        donationId: item.donationId,
+                        quantity: 1,
+                        cartType: item.cartType,
+                      ),
+                    );
+                    _reloadCart();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString().replaceAll('Exception:', '').trim()),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ],

@@ -382,6 +382,7 @@ class _DonateNewItemSheetState extends State<DonateNewItemSheet> {
               style: TextStyle(
                   color: _expiryDate == null ? Colors.grey : Colors.black),
             ),
+
           ),
         ),
         const SizedBox(height: 12),

@@ -1,36 +1,39 @@
-class AdminDonationRequestModel {
+class AdminDonationRequestedModel {
   final int requestId;
   final String itemName;
   final int quantity;
+  final String? expirationDate;
   final int userId;
   final String userName;
   final String userEmail;
   final String type;
-  final DateTime? expirationDate;
+  final String image1;
 
-  AdminDonationRequestModel({
+
+  AdminDonationRequestedModel({
     required this.requestId,
     required this.itemName,
     required this.quantity,
+    required this.expirationDate,
     required this.userId,
     required this.userName,
     required this.userEmail,
     required this.type,
-    this.expirationDate,
+    required this.image1
   });
 
-  factory AdminDonationRequestModel.fromJson(Map<String, dynamic> json) {
-    return AdminDonationRequestModel(
-      requestId: json['requestId'],
-      itemName: json['itemName'],
-      quantity: json['quantity'],
-      userId: json['userId'],
-      userName: json['userName'],
-      userEmail: json['userEmail'],
-      type: json['type'],
-      expirationDate: json['expirationDate'] != null
-          ? DateTime.parse(json['expirationDate'])
-          : null,
+  factory AdminDonationRequestedModel.fromJson(Map<String, dynamic> json) {
+    return AdminDonationRequestedModel(
+      requestId: json["requestId"],
+      itemName: json["itemName"],
+      quantity: json["quantity"],
+      expirationDate: json["expirationDate"],
+      userId: json["userId"],
+      userName: json["userName"],
+      userEmail: json["userEmail"],
+      type: json["type"],
+      image1: json['image1'],
+
     );
   }
 }

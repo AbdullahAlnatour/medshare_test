@@ -1,10 +1,11 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:test_app/features/auth/data/drhome/dr_home_service.dart';
 import 'package:test_app/screens/dr_DonorandRequester/dr_notification_screen.dart';
-
 import '../../core/storage/user_storage.dart';
 import '../../features/auth/data/Cart/cart_service.dart';
 import '../../features/auth/data/Cart/add_to_cart_dto.dart';
-import '../../features/auth/data/donations/donation_request_service.dart';
+import '../../features/auth/data/drhome/donation_equipment_model.dart';
+import '../../features/auth/data/drhome/donation_medicine_model.dart';
 
 class DrHomeScreen extends StatefulWidget {
   const DrHomeScreen({super.key});
@@ -21,6 +22,9 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   List<DonationMedicineModel> medicines = [];
   bool _medicinesLoading = false;
 
+  List<DonationEquipmentModel> equipment = [];
+  bool _equipmentLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +34,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   final _cartService = CartService();
-  final _donationsService = DonationRequestService();
+  final _donationsService = DRHomeService();
 
   Future<void> _loadApprovedEquipment() async {
     setState(() => _equipmentLoading = true);
@@ -57,15 +61,10 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
     }
   }
 
-  // Fetched from backend
-  List<DonationEquipmentModel> equipment = [];
-  bool _equipmentLoading = false;
-
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -195,6 +194,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   Widget _buildMedicalEquipment(double width, double height) {
+    const String apiBase = "http://10.0.2.2:5149";
     if (_equipmentLoading) {
       return SizedBox(
         height: height * 0.23,
@@ -230,18 +230,25 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                   borderRadius: BorderRadius.circular(20),
                   child: item.image1 != null && item.image1!.isNotEmpty
                       ? Image.network(
-                          item.image1!,
-                          height: height * 0.15,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )
+                    "$apiBase${item.image1}",
+                    height: height * 0.15,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Image.asset(
+                      'assets/images/wheelchair.png',
+                      height: height * 0.15,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  )
                       : Image.asset(
-                          'assets/images/wheelchair.png',
-                          height: height * 0.15,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
+                    'assets/images/wheelchair.png',
+                    height: height * 0.15,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
+
                 const SizedBox(height: 15),
                 Row(
                   children: [
@@ -267,7 +274,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 1),
                     Row(
                       children: [
                         Container(
@@ -392,23 +399,30 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Text(
-                          "Quantity ${item.quantity}",
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                        if (item.expiry != null && item.expiry!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            'Expired ${item.expiry}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 13,
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              "Quantity ${item.quantity}",
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 2),
+
+                            if (item.expiry != null && item.expiry!.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                '-Expired ${item.expiry}',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ],
+                        )
                       ],
                     ),
                   ],
@@ -527,4 +541,3 @@ class MedicalItem {
     this.medicaladded = false,
   });
 }
- */

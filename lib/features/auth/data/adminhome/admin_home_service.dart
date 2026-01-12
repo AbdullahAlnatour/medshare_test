@@ -1,7 +1,6 @@
 import '../../../../core/api/api_client.dart';
 import 'admin_donation_request_model.dart';
 import 'admin_take_donation_request_model.dart';
-
 class ApproveEquipmentRequestDto {
   final int requestEquipmentId;
 
@@ -23,22 +22,22 @@ class ApproveMedicineRequestDto {
 
 class AdminHomeService {
   // 📌 1) Get pending equipment upload requests
-  Future<List<AdminDonationRequestModel>> getPendingEquipmentRequests() async {
+  Future<List<AdminDonationRequestedModel>> getPendingEquipmentRequests() async {
     final res =
-    await ApiClient.dio.get('/requests/getPendingEquipmentRequests');
+    await ApiClient.dio.get('/Requests/getPendingEquipmentRequests');
 
     return (res.data as List)
-        .map((e) => AdminDonationRequestModel.fromJson(e))
+        .map((e) => AdminDonationRequestedModel.fromJson(e))
         .toList();
   }
 
-  // 📌 2) Get pending medicine upload requests
-  Future<List<AdminDonationRequestModel>> getPendingMedicineRequests() async {
+  // 2) Medicine
+  Future<List<AdminDonationRequestedModel>> getPendingMedicineRequests() async {
     final res =
-    await ApiClient.dio.get('/requests/getPendingMedicineRequests');
+    await ApiClient.dio.get('/Requests/getPendingMedicineRequests');
 
     return (res.data as List)
-        .map((e) => AdminDonationRequestModel.fromJson(e))
+        .map((e) => AdminDonationRequestedModel.fromJson(e))
         .toList();
   }
 
@@ -46,7 +45,7 @@ class AdminHomeService {
   Future<List<AdminTakeDonationRequestModel>>
   getPendingTakeEquipmentRequests() async {
     final res =
-    await ApiClient.dio.get('/donations/admin/pendingMedicineTake');
+    await ApiClient.dio.get('/donations/admin/pending-equipmenttake');
 
     return (res.data as List)
         .map((e) => AdminTakeDonationRequestModel.fromJson(e))
@@ -57,7 +56,7 @@ class AdminHomeService {
   Future<List<AdminTakeDonationRequestModel>>
   getPendingTakeMedicineRequests() async {
     final res =
-    await ApiClient.dio.get('/donations/admin/pendingEquipmentTake');
+    await ApiClient.dio.get('/donations/admin/pending-medicinetake');
 
     return (res.data as List)
         .map((e) => AdminTakeDonationRequestModel.fromJson(e))

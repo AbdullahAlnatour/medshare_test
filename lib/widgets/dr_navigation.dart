@@ -16,7 +16,7 @@ class DrNavigationpage extends StatefulWidget {
 class _DrNavigationpageState extends State<DrNavigationpage> {
   int _selectedindex=0;
   List<Widget> pages = [
-    //DrHomeScreen(),
+    DrHomeScreen(),
     DonorRequestScreen(),
     CartScreen(),
     DrProfileScreen(),

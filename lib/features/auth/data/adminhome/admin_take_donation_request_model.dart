@@ -7,6 +7,7 @@ class AdminTakeDonationRequestModel {
   final String userEmail;
   final String type;
   final DateTime? expirationDate;
+  final String image1;
 
   AdminTakeDonationRequestModel({
     required this.requestId,
@@ -17,6 +18,7 @@ class AdminTakeDonationRequestModel {
     required this.userEmail,
     required this.type,
     this.expirationDate,
+    required this.image1
   });
 
   factory AdminTakeDonationRequestModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,8 @@ class AdminTakeDonationRequestModel {
       expirationDate: json['expirationDate'] != null
           ? DateTime.parse(json['expirationDate'])
           : null,
+      image1: json['image1'],
+
     );
   }
 }
