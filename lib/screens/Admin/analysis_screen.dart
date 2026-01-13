@@ -100,12 +100,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               radius: 40,
             ),
             PieChartSectionData(
-              color: const Color(0xff65d6ce),
-              value: _analysis!.requests.toDouble(),
-              title: "",
-              radius: 40,
-            ),
-            PieChartSectionData(
               color: const Color(0xffa2b1ff),
               value: _analysis!.userRequests.toDouble(),
               title: "",
@@ -121,7 +115,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget _buildStatsGrid() {
     final total = _analysis!.users +
         _analysis!.donations +
-        _analysis!.requests +
         _analysis!.userRequests;
 
     String percent(int value) =>
@@ -137,11 +130,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         "title": "Donations",
         "percent": percent(_analysis!.donations),
         "color": kTeal,
-      },
-      {
-        "title": "Requests",
-        "percent": percent(_analysis!.requests),
-        "color": const Color(0xff65d6ce),
       },
       {
         "title": "User Requests",

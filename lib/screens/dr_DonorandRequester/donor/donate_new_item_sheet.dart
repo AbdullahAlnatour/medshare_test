@@ -39,15 +39,13 @@ class _DonateNewItemSheetState extends State<DonateNewItemSheet> {
 
   int _mapDosageToEnum(String dosage) {
     switch (dosage) {
-      case "Tablets":
-        return 0;
       case "Capsules":
         return 1;
       case "Syrup":
         return 2;
-      case "Cream":
+      case "Injection":
         return 3;
-      case "Spray":
+      case "Cream":
         return 4;
       case "Other":
         return 5;
@@ -347,11 +345,10 @@ class _DonateNewItemSheetState extends State<DonateNewItemSheet> {
         DropdownButtonFormField(
           value: _dosageForm,
           items: const [
-            "Tablets",
             "Capsules",
             "Syrup",
+            "Injection",
             "Cream",
-            "Spray",
             "Other",
           ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
           onChanged: (v) => setState(() => _dosageForm = v),

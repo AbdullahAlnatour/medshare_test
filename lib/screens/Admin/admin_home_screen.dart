@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_app/features/auth/data/adminhome/approved_donationdto.dart';
 import 'package:test_app/screens/Admin/admin_notification_screen.dart';
 import '../../core/api/api_client.dart';
 import '../../core/storage/user_storage.dart';
@@ -70,7 +71,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Future<void> _loadEquipmentTakeRequests() async {
+
     final data = await AdminHomeService().getPendingTakeEquipmentRequests();
+    print("TAKE EQUIPMENT RESPONSE = $data");
+
     if (!mounted) return;
     setState(() {
       _takerequests.addAll(data);
@@ -79,6 +83,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   Future<void> _loadMedicineTakeRequests() async {
     final data = await AdminHomeService().getPendingTakeMedicineRequests();
+    print("TAKE MEDICINE RESPONSE = $data");
     if (!mounted) return;
     setState(() {
       _takerequests.addAll(data);
@@ -116,7 +121,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               SizedBox(height: height * 0.015),
               _buildMedicalEquipment(width, height),
               SizedBox(height: height * 0.03),
-              _buildSectionTitle("Medicines donations"),
+              _buildSectionTitle("Medicines"),
               SizedBox(height: height * 0.075),
               _buildmedicinesList(width, height),
             ],
@@ -222,13 +227,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       children: [
         _buildActionButton("Donation", isDonationActive, () {
           setState(() {
-            isDonationActive = !isDonationActive;
+            isDonationActive = true;
           });
         }),
         SizedBox(width: width * 0.04),
         _buildActionButton("Request", !isDonationActive, () {
           setState(() {
-            isDonationActive = !isDonationActive;
+            isDonationActive = false;
           });
         }),
       ],
@@ -287,8 +292,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               item.userName,
               item.userEmail,
               item.requestId,
-              item.image1,      // ⬅️ مرّر الصورة
+              item.image1,
               true,
+              item.userId,
             );
           } else {
             final item = equipmentTakeRequests[index];
@@ -296,12 +302,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               width,
               height,
               item.itemName,
-              item.quantity,
+              item.quantity??0,
               item.userName,
               item.userEmail,
-              item.requestId,
-              item.image1,      // ⬅️ مرّر الصورة
+              item.requestId??0,
+              item.image1,
               false,
+              item.userId??0,
             );
           }
         },
@@ -318,7 +325,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       String userEmail,
       int requestId,
       String image1,
-      bool isUploadRequest) {
+      bool isUploadRequest,
+      int userId) {
     return Container(
       width: width * 0.65,
       margin: EdgeInsets.only(right: width * 0.02),
@@ -339,13 +347,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Image.network(
-              '${apiBase}$image1', // أو baseUrl تبعك
+              '${apiBase}$image1',
               width: 250,
               height: 120,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Image.asset(
-                  'assets/images/placeholder.png',
+                  'assets/images/placeholder.jpg',
                   width: 250,
                   height: 120,
                   fit: BoxFit.cover,
@@ -353,7 +361,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               },
             ),
           ),
-
 
           const SizedBox(height: 20),
 
@@ -391,6 +398,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
               Row(
                 children: [
+                  // REJECT
                   Container(
                     width: 36,
                     height: 34,
@@ -409,26 +417,28 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       color: Colors.red,
                       iconSize: 20,
                       onPressed: () async {
-                        bool success = false;
+                        bool success;
 
-                        // Reject ONLY equipment requests (upload or take)
-                        success = await AdminHomeService().rejectEquipmentRequest(requestId);
+                        if (isUploadRequest) {
+                          success = await AdminHomeService()
+                              .rejectEquipmentRequest(requestId);
+                        } else {
+                          final dto = RequestRejectDonationDto(
+                            donationId: requestId,
+                            userId: userId,
+                            quantity: quantity,
+                          );
+
+                          success = await AdminHomeService()
+                              .rejectTakeEquipmentDonation(requestId);
+                        }
 
                         if (success) {
-                          setState(() {
-                            // Remove from upload equipment list
-                            equipmentDonations.removeWhere((item) => item.requestId == requestId);
-
-                            // Remove from take equipment list
-                            equipmentTakeRequests.removeWhere((item) => item.requestId == requestId);
-                          });
-
                           await _loadAllData();
                           setState(() {});
                         }
                       },
                     ),
-
                   ),
 
                   const SizedBox(width: 6),
@@ -452,26 +462,31 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       color: Colors.green,
                       iconSize: 20,
                       onPressed: () async {
-                        final dto = ApproveEquipmentRequestDto(requestEquipmentId: requestId);
+                        bool success;
 
-                        final success = await AdminHomeService().approveEquipmentRequest(dto);
+                        if (isUploadRequest) {
+                          final dto =
+                          ApproveEquipmentRequestDto(requestEquipmentId: requestId);
+                          success = await AdminHomeService()
+                              .approveEquipmentRequest(dto);
+                        } else {
+                          final dto = ApproveDonationDto(
+                            donationId: requestId,
+                            receiverUserId: userId,
+                            quantity: quantity,
+                          );
+
+                          success = await AdminHomeService()
+                              .approveTakeEquipmentDonation(dto);
+                        }
+
 
                         if (success) {
-                          // Remove from UI immediately
-                          setState(() {
-                            equipmentDonations.removeWhere((item) => item.requestId == requestId);
-                            equipmentTakeRequests.removeWhere((item) => item.requestId == requestId);
-                          });
-
-                          // Reload updated backend data
                           await _loadAllData();
-
-                          // Final refresh
                           setState(() {});
                         }
                       },
                     ),
-
                   ),
                 ],
               ),
@@ -489,9 +504,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget _buildmedicinesList(double width, double height) {
     return Expanded(
       child: ListView.builder(
-        itemCount: isDonationActive
-            ? medicineDonations.length
-            : medicineTakeRequests.length,
+          itemCount: isDonationActive ? medicineDonations.length : medicineTakeRequests.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
           if (isDonationActive) {
@@ -505,6 +518,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               item.userEmail,
               item.requestId,
               true,
+              item.userId,
             );
           } else {
             final item = medicineTakeRequests[index];
@@ -512,11 +526,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               width,
               height,
               item.itemName,
-              item.quantity,
+              item.quantity??0,
               item.userName,
               item.userEmail,
-              item.requestId,
+              item.requestId??0,
               false,
+              item.userId??0,
             );
           }
         },
@@ -532,7 +547,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       String userName,
       String userEmail,
       int requestId,
-      bool isUploadRequest) {
+      bool isUploadRequest,
+      int userId) {
     return Container(
       margin: EdgeInsets.only(bottom: height * 0.015),
       padding: EdgeInsets.all(width * 0.04),
@@ -557,8 +573,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         fontWeight: FontWeight.w600,
                       )),
                   Text("Qty: $quantity",
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 13)),
+                      style:
+                      const TextStyle(color: Colors.white70, fontSize: 13)),
                   const SizedBox(width: 6),
                   Text(userName,
                       style: const TextStyle(
@@ -597,28 +613,29 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   color: Colors.red,
                   iconSize: 20,
                   onPressed: () async {
-                    // Call API to reject medicine request
-                    final success = await AdminHomeService()
-                        .rejectMedicineRequest(requestId);
+                    bool success;
+
+                    if (isUploadRequest) {
+                      success = await AdminHomeService()
+                          .rejectMedicineRequest(requestId);
+                    } else {
+                      final dto = RequestRejectDonationDto(
+                        donationId: requestId,
+                        userId: userId,
+                        quantity: quantity,
+                      );
+
+                      success = await AdminHomeService()
+                          .rejectTakeMedicineDonation(requestId);
+                    }
 
                     if (success) {
-                      setState(() {
-                        // Remove from medicine upload requests
-                        medicineDonations.removeWhere((item) => item.requestId == requestId);
-
-                        // Remove from medicine take requests
-                        medicineTakeRequests.removeWhere((item) => item.requestId == requestId);
-                      });
-
-                      // Reload full data from backend
                       await _loadAllData();
-
                       setState(() {});
                     }
                   },
                 ),
               ),
-
 
               const SizedBox(width: 8),
 
@@ -642,27 +659,32 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   color: Colors.green,
                   iconSize: 20,
                   onPressed: () async {
-                    final dto = ApproveMedicineRequestDto(requestMedicineId: requestId);
+                    bool success;
 
-                    final success =
-                    await AdminHomeService().approveMedicineRequest(dto);
+                    if (isUploadRequest) {
+                      final dto =
+                      ApproveMedicineRequestDto(requestMedicineId: requestId);
+                      success = await AdminHomeService()
+                          .approveMedicineRequest(dto);
+                    } else {
+                      final dto = ApproveDonationDto(
+                        donationId: requestId,
+                        receiverUserId: userId,
+                        quantity: quantity,
+                      );
+
+                      success = await AdminHomeService()
+                          .approveTakeMedicineDonation(dto);
+                    }
+
 
                     if (success) {
-                      setState(() {
-
-                        medicineDonations.removeWhere((item) => item.requestId == requestId);
-
-
-                        medicineTakeRequests
-                            .removeWhere((item) => item.requestId == requestId);
-                      });
                       await _loadAllData();
                       setState(() {});
                     }
                   },
                 ),
               ),
-
             ],
           ),
         ],

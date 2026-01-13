@@ -1,6 +1,7 @@
 import '../../../../core/api/api_client.dart';
 import 'admin_donation_request_model.dart';
 import 'admin_take_donation_request_model.dart';
+import 'approved_donationdto.dart';
 class ApproveEquipmentRequestDto {
   final int requestEquipmentId;
 
@@ -42,15 +43,18 @@ class AdminHomeService {
   }
 
   // 📌 3) Get pending take equipment requests (requests for taking donations)
-  Future<List<AdminTakeDonationRequestModel>>
-  getPendingTakeEquipmentRequests() async {
-    final res =
-    await ApiClient.dio.get('/donations/admin/pending-equipmenttake');
+  Future<List<AdminTakeDonationRequestModel>> getPendingTakeEquipmentRequests() async {
+    final res = await ApiClient.dio.get('/donations/admin/pending-equipmenttake');
 
+    // اطبع البيانات
+    print("RAW EQUIPMENT API: ${res.data}");
+
+    // حول JSON → Model
     return (res.data as List)
         .map((e) => AdminTakeDonationRequestModel.fromJson(e))
         .toList();
   }
+
 
   // 📌 4) Get pending take medicine requests
   Future<List<AdminTakeDonationRequestModel>>
@@ -115,4 +119,34 @@ class AdminHomeService {
 
     return res.statusCode == 200;
   }
+// 🟢 Approve TAKE (Donation request)
+
+  Future<bool> approveTakeEquipmentDonation(ApproveDonationDto dto) async {
+    final res = await ApiClient.dio.put('/donations/approve-takeequipment', data: dto.toJson());
+    return res.statusCode == 200;
+  }
+
+  Future<bool> approveTakeMedicineDonation(ApproveDonationDto dto) async {
+    final res = await ApiClient.dio.put('/donations/approve-takemedicine', data: dto.toJson());
+    return res.statusCode == 200;
+  }
+
+  Future<bool> rejectTakeEquipmentDonation(int donationId) async {
+    final res = await ApiClient.dio.put(
+      '/donations/reject-take-equipment',
+      data: {"donationId": donationId},
+    );
+    return res.statusCode == 200;
+  }
+
+  Future<bool> rejectTakeMedicineDonation(int donationId) async {
+    final res = await ApiClient.dio.put(
+      '/donations/reject-take-medicine',
+      data: {"donationId": donationId},
+    );
+    return res.statusCode == 200;
+  }
+
+
+
 }

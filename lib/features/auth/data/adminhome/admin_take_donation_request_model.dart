@@ -18,23 +18,23 @@ class AdminTakeDonationRequestModel {
     required this.userEmail,
     required this.type,
     this.expirationDate,
-    required this.image1
+    required this.image1,
   });
 
   factory AdminTakeDonationRequestModel.fromJson(Map<String, dynamic> json) {
     return AdminTakeDonationRequestModel(
-      requestId: json['requestId'],
-      itemName: json['itemName'],
-      quantity: json['quantity'],
-      userId: json['userId'],
-      userName: json['userName'],
-      userEmail: json['userEmail'],
-      type: json['type'],
+      requestId: json['donationId'] ?? 0,        // ✔ بدل requestId
+      itemName: json['itemName'] ?? '',         // OK
+      quantity: json['quantity'] ?? 0,          // OK
+      userId: json['userId'] ?? 0,              // OK
+      userName: json['userName'] ?? '',         // OK
+      userEmail: json['userEmail'] ?? '',       // OK
+      type: json['type']?.toString() ?? "Equipment",
+      // ✔ API يرجع null
       expirationDate: json['expirationDate'] != null
           ? DateTime.parse(json['expirationDate'])
           : null,
-      image1: json['image1'],
-
+      image1: json['image1'] ?? "",             // ✔ API لا يرجع image1
     );
   }
 }
