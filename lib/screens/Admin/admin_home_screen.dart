@@ -373,7 +373,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   Text(itemName,
                       style:
                       const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text("Qty: $quantity",
+                  Text("Quantity: $quantity",
                       style: const TextStyle(
                           color: Colors.grey,
                           fontWeight: FontWeight.w600,

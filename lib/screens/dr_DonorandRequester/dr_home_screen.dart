@@ -25,6 +25,34 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
 
   List<DonationEquipmentModel> equipment = [];
   bool _equipmentLoading = false;
+  String dosageFormToText(int value) {
+    switch (value) {
+      case 1:
+        return "Capsules";
+      case 2:
+        return "Syrup";
+      case 3:
+        return "Injection";
+      case 4:
+        return "Cream";
+      case 5:
+        return "Other";
+      default:
+        return "Unknown";
+    }
+  }
+  String equStatusToText(int value) {
+    switch (value) {
+      case 1:
+        return "New";
+      case 2:
+        return "Like New";
+      case 3:
+        return "Used";
+      default:
+        return "Unknown";
+    }
+  }
 
   @override
   void initState() {
@@ -268,6 +296,14 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                               color: Colors.grey.shade600,
                             ),
                           ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Condition ${equStatusToText(item.condition)}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -424,6 +460,26 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
                                 ),
                               ),
                             ],
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              'Strength ${item.strength}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '- Dosageform ${dosageFormToText(item.dosageform)}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            )
                           ],
                         )
                       ],

@@ -4,6 +4,8 @@ class DonationMedicineModel {
   final int quantity;
   final String? expiry;
   final String? image1;
+  final String? strength;
+  final int dosageform;
 
   DonationMedicineModel({
     required this.donationMedicineId,
@@ -11,6 +13,8 @@ class DonationMedicineModel {
     required this.quantity,
     this.expiry,
     this.image1,
+    this.strength,
+    required this.dosageform
   });
 
   factory DonationMedicineModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,8 @@ class DonationMedicineModel {
           ? json['expirationDate'].toString().split('T').first
           : null,
       image1: json['image1'],
+      strength: json['strength'],
+      dosageform: json['dosageForm']
     );
   }
 }
