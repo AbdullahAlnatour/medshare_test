@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../../../features/auth/data/unavailable donation/reqeust_service.dart';
-import '../../../features/auth/data/unavailable donation/unavailable_reqeust_model.dart';
+import '../../../features/auth/data/request/reqeust_service.dart';
+import '../../../features/auth/data/request/unavailable_reqeust_model.dart';
 
 class MyMedicineReqeustList extends StatefulWidget {
   const MyMedicineReqeustList({super.key});
@@ -56,7 +55,7 @@ class _MyMedicineReqeustListState
     return SingleChildScrollView(
         child: Column(
         children: items
-            .map((r) => UnavailableMedicineTile(
+            .map((r) => _MyMedicineRequestTile(
       name: r.itemName,
       icon: Icons.medical_services,
     ))
@@ -65,11 +64,11 @@ class _MyMedicineReqeustListState
     );
   }
 }
-class UnavailableMedicineTile extends StatelessWidget {
+class _MyMedicineRequestTile extends StatelessWidget {
   final String name;
   final IconData icon;
 
-  const UnavailableMedicineTile({
+  const _MyMedicineRequestTile({
     required this.name,
     required this.icon,
   });

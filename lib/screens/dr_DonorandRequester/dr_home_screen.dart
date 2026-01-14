@@ -15,6 +15,7 @@ class DrHomeScreen extends StatefulWidget {
 }
 
 class _DrHomeScreenState extends State<DrHomeScreen> {
+  String searchQuery = "";
   bool isDonationActive = true;
   String _fullName = '';
 
@@ -114,7 +115,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
             ),
           ],
         ),
-        Stack(
+       /* Stack(
           children: [
             InkWell(
               child: const Icon(Icons.notifications_none_rounded, size: 30),
@@ -137,7 +138,7 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
               ),
             ),
           ],
-        ),
+        ),*/
       ],
     );
   }
@@ -153,34 +154,25 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             padding: EdgeInsets.symmetric(horizontal: width * 0.04),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.search, color: Colors.grey),
                 SizedBox(width: 2),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search',
-                      border: InputBorder.none,
-                      filled: false,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                    ),
+                Expanded(child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value.toLowerCase().trim();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    border: InputBorder.none,
                   ),
+                ),
                 ),
               ],
             ),
           ),
-        ),
-        SizedBox(width: width * 0.03),
-        Container(
-          height: height * 0.06,
-          width: height * 0.06,
-          decoration: BoxDecoration(
-            color: const Color(0xFF34AFB7),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.filter_list, color: Colors.white),
         ),
       ],
     );
@@ -194,6 +186,12 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   Widget _buildMedicalEquipment(double width, double height) {
+    final displayedEquipment = searchQuery.isEmpty
+        ? equipment
+        : equipment.where((item) {
+      return item.itemName.toLowerCase().contains(searchQuery);
+    }).toList();
+
     const String apiBase = "http://10.0.2.2:5149";
     if (_equipmentLoading) {
       return SizedBox(
@@ -201,14 +199,13 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
         child: const Center(child: CircularProgressIndicator()),
       );
     }
-
     return SizedBox(
       height: height * 0.23,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: equipment.length,
+        itemCount: displayedEquipment.length,
         itemBuilder: (context, index) {
-          final item = equipment[index];
+          final item = displayedEquipment[index];
           return Container(
             width: width * 0.45,
             margin: EdgeInsets.only(right: width * 0.02),
@@ -364,16 +361,22 @@ class _DrHomeScreenState extends State<DrHomeScreen> {
   }
 
   Widget _buildMedicinesList(double width, double height) {
+    final displayedMedicine = searchQuery.isEmpty
+        ? medicines
+        : medicines.where((item) {
+      return item.itemName.toLowerCase().contains(searchQuery);
+    }).toList();
+
     if (_medicinesLoading) {
       return const Expanded(child: Center(child: CircularProgressIndicator()));
     }
 
     return Expanded(
       child: ListView.builder(
-        itemCount: medicines.length,
+        itemCount: displayedMedicine.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
-          final item = medicines[index];
+          final item = displayedMedicine[index];
           return Container(
             margin: EdgeInsets.only(bottom: height * 0.015),
             padding: EdgeInsets.all(width * 0.04),

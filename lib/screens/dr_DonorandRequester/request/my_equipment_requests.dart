@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:test_app/features/auth/data/unavailable%20donation/reqeust_service.dart';
-
+import 'package:test_app/features/auth/data/request/reqeust_service.dart';
 import '../../../core/storage/token_storage.dart';
-import '../../../features/auth/data/unavailable donation/unavailable_reqeust_model.dart';
+import '../../../features/auth/data/request/unavailable_reqeust_model.dart';
 
 class MyEquipmentRequestList extends StatefulWidget {
   const MyEquipmentRequestList({super.key});
@@ -59,7 +58,7 @@ class _MyEquipmentRequestListState
     return SingleChildScrollView(
       child: Column(
         children: requests
-            .map((r) => _UnavailableEquipmentTile(
+            .map((r) => _MyEquipmentRequestTile(
           name: r.itemName,
           icon: Icons.medical_services,
         ))
@@ -68,11 +67,11 @@ class _MyEquipmentRequestListState
     );
   }
 }
-class _UnavailableEquipmentTile extends StatelessWidget {
+class _MyEquipmentRequestTile extends StatelessWidget {
   final String name;
   final IconData icon;
 
-  const _UnavailableEquipmentTile({
+  const _MyEquipmentRequestTile({
     required this.name,
     required this.icon,
   });

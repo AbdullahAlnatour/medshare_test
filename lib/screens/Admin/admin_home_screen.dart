@@ -15,6 +15,7 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  String searchQuery = "";
   String apiBase = "http://10.0.2.2:5149";
 
   List<AdminDonationRequestedModel> _requests = [];
@@ -122,7 +123,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               _buildMedicalEquipment(width, height),
               SizedBox(height: height * 0.03),
               _buildSectionTitle("Medicines"),
-              SizedBox(height: height * 0.075),
+              SizedBox(height: height * 0.015),
               _buildmedicinesList(width, height),
             ],
           ),
@@ -149,7 +150,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
           ],
         ),
-        Stack(
+        /*Stack(
           children: [
             InkWell(
               child: const Icon(Icons.notifications_none_rounded, size: 30),
@@ -172,13 +173,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               ),
             ),
           ],
-        ),
+        ),*/
       ],
     );
   }
 
   Widget _buildSearchBar(double width, double height) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: Container(
@@ -188,34 +190,25 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             padding: EdgeInsets.symmetric(horizontal: width * 0.04),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.search, color: Colors.grey),
-                SizedBox(width: 2),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search',
-                      border: InputBorder.none,
-                      filled: false,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                    ),
+                SizedBox(width: 10),
+                Expanded(child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value.toLowerCase().trim();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    border: InputBorder.none,
                   ),
+                ),
                 ),
               ],
             ),
           ),
-        ),
-        SizedBox(width: width * 0.03),
-        Container(
-          height: height * 0.06,
-          width: height * 0.06,
-          decoration: BoxDecoration(
-            color: const Color(0xFF34AFB7),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.filter_list, color: Colors.white),
         ),
       ],
     );
@@ -274,47 +267,51 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   /////////////////////////////////////////////////////////////
 
   Widget _buildMedicalEquipment(double width, double height) {
+    // 1️⃣ تجهيز القائمة حسب التاب
+    List<dynamic> baseList = isDonationActive
+        ? equipmentDonations   // List<AdminDonationRequestedModel>
+        : equipmentTakeRequests; // List<AdminTakeDonationRequestModel>
+
+    // 2️⃣ تطبيق فلترة البحث
+    final filteredList = searchQuery.isEmpty
+        ? baseList
+        : baseList.where((item) {
+      return item.itemName.toLowerCase().contains(searchQuery) ||
+          item.userName.toLowerCase().contains(searchQuery);
+    }).toList();
+
     return SizedBox(
       height: height * 0.23,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: isDonationActive
-            ? equipmentDonations.length
-            : equipmentTakeRequests.length,
+        itemCount: filteredList.length,
         itemBuilder: (context, index) {
-          if (isDonationActive) {
-            final item = equipmentDonations[index];
-            return _buildEquipmentCard(
-              width,
-              height,
-              item.itemName,
-              item.quantity,
-              item.userName,
-              item.userEmail,
-              item.requestId,
-              item.image1,
-              true,
-              item.userId,
-            );
-          } else {
-            final item = equipmentTakeRequests[index];
-            return _buildEquipmentCard(
-              width,
-              height,
-              item.itemName,
-              item.quantity??0,
-              item.userName,
-              item.userEmail,
-              item.requestId??0,
-              item.image1,
-              false,
-              item.userId??0,
-            );
-          }
+          final item = filteredList[index];
+
+          // ⭐⭐ نوع العنصر يتحدد هنا
+          final String name = item.itemName;
+          final int qty = item.quantity ?? 0;
+          final int reqId = item.requestId ?? item.donationId ?? 0;
+          final int userId = item.userId ?? 0;
+          final String img = item.image1 ?? "";
+
+          return _buildEquipmentCard(
+            width,
+            height,
+            name,
+            qty,
+            item.userName,
+            item.userEmail,
+            reqId,
+            img,
+            isDonationActive,
+            userId,
+          );
         },
       ),
     );
   }
+
 
   Widget _buildEquipmentCard(
       double width,
@@ -327,6 +324,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       String image1,
       bool isUploadRequest,
       int userId) {
+
     return Container(
       width: width * 0.65,
       margin: EdgeInsets.only(right: width * 0.02),
@@ -502,42 +500,51 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   /////////////////////////////////////////////////////////////
 
   Widget _buildmedicinesList(double width, double height) {
+    // 1️⃣ تحديد القائمة الأساسية حسب التاب الحالي
+    final List<dynamic> baseList = isDonationActive
+        ? medicineDonations
+        : medicineTakeRequests;
+
+    // 2️⃣ تطبيق الفلترة حسب searchQuery
+    final filteredList = searchQuery.isEmpty
+        ? baseList
+        : baseList.where((item) {
+      final name = item.itemName.toLowerCase();
+      final query = searchQuery.toLowerCase().trim();
+      return name.contains(query);
+    }).toList();
+
     return Expanded(
       child: ListView.builder(
-          itemCount: isDonationActive ? medicineDonations.length : medicineTakeRequests.length,
+        itemCount: filteredList.length,
         padding: EdgeInsets.symmetric(horizontal: width * 0.01),
         itemBuilder: (context, index) {
-          if (isDonationActive) {
-            final item = medicineDonations[index];
-            return _buildMedicineTile(
-              width,
-              height,
-              item.itemName,
-              item.quantity,
-              item.userName,
-              item.userEmail,
-              item.requestId,
-              true,
-              item.userId,
-            );
-          } else {
-            final item = medicineTakeRequests[index];
-            return _buildMedicineTile(
-              width,
-              height,
-              item.itemName,
-              item.quantity??0,
-              item.userName,
-              item.userEmail,
-              item.requestId??0,
-              false,
-              item.userId??0,
-            );
-          }
+          final item = filteredList[index];
+
+          // ⭐ تجهيز القيم المشتركة للحالتين
+          final name = item.itemName;
+          final qty = item.quantity ?? 0;
+          final userName = item.userName;
+          final userEmail = item.userEmail;
+          final userId = item.userId ?? 0;
+          final requestId = item.requestId ?? item.donationId ?? 0;
+
+          return _buildMedicineTile(
+            width,
+            height,
+            name,
+            qty,
+            userName,
+            userEmail,
+            requestId,
+            isDonationActive,
+            userId,
+          );
         },
       ),
     );
   }
+
 
   Widget _buildMedicineTile(
       double width,
